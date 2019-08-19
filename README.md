@@ -1,3 +1,10 @@
+[![Version](https://img.shields.io/npm/v/@adobe/adobeio-cna-tvm-client.svg)](https://npmjs.org/package/@adobe/adobeio-cna-tvm-client)
+[![Downloads/week](https://img.shields.io/npm/dw/@adobe/adobeio-cna-tvm-client.svg)](https://npmjs.org/package/@adobe/adobeio-cna-tvm-client)
+[![Build Status](https://travis-ci.com/adobe/adobeio-cna-tvm-client.svg?branch=master)](https://travis-ci.com/adobe/adobeio-cna-tvm-client)
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+[![Codecov
+Coverage](https://img.shields.io/codecov/c/github/adobe/adobeio-cna-tvm-client/master.svg?style=flat-square)](https://codecov.io/gh/adobe/adobeio-cna-tvm-client/)
+
 # Adobe I/O CNA Token Vending Machine Client
 
 A JS client to access the token vending machine.
