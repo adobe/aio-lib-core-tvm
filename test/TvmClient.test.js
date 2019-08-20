@@ -25,6 +25,7 @@ let fakeAzureTVMResponse
 let fakeAwsS3Response
 let fakeTVMInput
 let cacheContent
+let fakeAzureCosmosResponse
 
 const wrapInFetchResponse = (body) => {
   return {
@@ -65,6 +66,12 @@ beforeEach(async () => {
     secretAccessKey: 'fake',
     sessionToken: 'fake',
     params: { Bucket: 'fake' }
+  }
+  fakeAzureCosmosResponse = {
+    expiration: maxDate,
+    cosmosClientArgs: { endpoint: 'https://fake.com', resourceTokens: { fake: 'fake' } },
+    databaseId: 'fakeDB',
+    containerId: 'fakeContainer'
   }
   cacheContent = JSON.stringify({ [genCacheKey(fakeTVMInput)]: fakeAzureTVMResponse })
 })
@@ -184,6 +191,20 @@ describe('getAwsS3Credentials', () => {
     const creds = await tvmClient.getAwsS3Credentials()
     expect(creds).toEqual(fakeAwsS3Response)
     expect(fetch.mock.calls[0][0]).toEqual(TvmClient.DefaultApiHost + '/' + TvmClient.AwsS3Endpoint + '/' + fakeTVMInput.ow.namespace)
+    expect(fetch.mock.calls[0][1].headers).toEqual(expect.objectContaining({ 'Authorization': fakeTVMInput.ow.auth }))
+  })
+})
+
+describe('getAzureCosmosCredentials', () => {
+  // the general tests are same, we test just that the method is defined
+  test('without caching when tvm response is valid', async () => {
+    // fake the fetch to the TVM
+    fetch.mockResolvedValue(wrapInFetchResponse(fakeAzureCosmosResponse))
+    fakeTVMInput.cacheFile = false
+    const tvmClient = TvmClient.init(fakeTVMInput)
+    const creds = await tvmClient.getAzureCosmosCredentials()
+    expect(creds).toEqual(fakeAzureCosmosResponse)
+    expect(fetch.mock.calls[0][0]).toEqual(TvmClient.DefaultApiHost + '/' + TvmClient.AzureCosmosEndpoint + '/' + fakeTVMInput.ow.namespace)
     expect(fetch.mock.calls[0][1].headers).toEqual(expect.objectContaining({ 'Authorization': fakeTVMInput.ow.auth }))
   })
 })
