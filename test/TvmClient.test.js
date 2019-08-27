@@ -69,7 +69,9 @@ beforeEach(async () => {
   }
   fakeAzureCosmosResponse = {
     expiration: maxDate,
-    cosmosClientArgs: { endpoint: 'https://fake.com', resourceTokens: { fake: 'fake' } },
+    endpoint: 'https://fake.com',
+    resourceTokens: 'fake',
+    partitionKey: 'fake',
     databaseId: 'fakeDB',
     containerId: 'fakeContainer'
   }
