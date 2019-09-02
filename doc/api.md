@@ -20,7 +20,7 @@
 blob container. These two signed URLs can then be passed to the azure blob storage sdk, see the example below:</p>
 </dd>
 <dt><a href="#TvmResponseAzureCosmos">TvmResponseAzureCosmos</a> : <code>object</code></dt>
-<dd><p>Tvm response with Azure Cosmos resource credentials. Gives access to a personal Cosmos container.</p>
+<dd><p>Tvm response with Azure Cosmos resource credentials. Gives access to an isolated partition within a CosmosDB container.</p>
 </dd>
 <dt><a href="#TvmResponseAwsS3">TvmResponseAwsS3</a> : <code>object</code></dt>
 <dd><p>Tvm response with Aws S3 temporary credentials. These credentials give access to files in a restricted prefix:
@@ -42,7 +42,7 @@ Client SDK for Token Vending Machine (TVM)
         * [.getAwsS3Credentials()](#TvmClient+getAwsS3Credentials) ⇒ [<code>Promise.&lt;TvmResponseAwsS3&gt;</code>](#TvmResponseAwsS3)
         * [.getAzureCosmosCredentials()](#TvmClient+getAzureCosmosCredentials) ⇒ [<code>Promise.&lt;TvmResponseAzureCosmos&gt;</code>](#TvmResponseAzureCosmos)
     * _static_
-        * [.init(config)](#TvmClient.init) ⇒ [<code>TvmClient</code>](#TvmClient)
+        * [.init(config)](#TvmClient.init) ⇒ [<code>Promise.&lt;TvmClient&gt;</code>](#TvmClient)
 
 <a name="TvmClient+getAzureBlobCredentials"></a>
 
@@ -105,16 +105,16 @@ const data = await container.item('<itemKey>', azureCosmosCredentials.partitionK
 
 <a name="TvmClient.init"></a>
 
-### TvmClient.init(config) ⇒ [<code>TvmClient</code>](#TvmClient)
+### TvmClient.init(config) ⇒ [<code>Promise.&lt;TvmClient&gt;</code>](#TvmClient)
 Creates a TvmClient instance
 
 ```javascript
 const TvmClient = require('@adobe/adobeio-cna-tvm-client')
-const tvm = TvmClient.init({ ow: { namespace, auth } })
+const tvm = await TvmClient.init({ ow: { namespace, auth } })
 ```
 
 **Kind**: static method of [<code>TvmClient</code>](#TvmClient)  
-**Returns**: [<code>TvmClient</code>](#TvmClient) - new instance  
+**Returns**: [<code>Promise.&lt;TvmClient&gt;</code>](#TvmClient) - new instance  
 **Throws**:
 
 - [<code>TvmError</code>](#TvmError) 
@@ -124,7 +124,7 @@ const tvm = TvmClient.init({ ow: { namespace, auth } })
 | --- | --- | --- |
 | config | <code>object</code> | TvmClientParams |
 | config.apiUrl | <code>string</code> | url to tvm api |
-| config.ow | [<code>OpenWhiskCredentials</code>](#OpenWhiskCredentials) | Openwhisk credentials |
+| [config.ow] | [<code>OpenWhiskCredentials</code>](#OpenWhiskCredentials) | Openwhisk credentials. As an alternative you can pass those through environment variables: `__OW_NAMESPACE` and `__OW_AUTH` |
 | [config.cacheFile] | <code>string</code> | if omitted defaults to tmpdir/.tvmCache, use false or null to not cache |
 
 <a name="TvmError"></a>
@@ -200,7 +200,7 @@ blob container. These two signed URLs can then be passed to the azure blob stora
 <a name="TvmResponseAzureCosmos"></a>
 
 ## TvmResponseAzureCosmos : <code>object</code>
-Tvm response with Azure Cosmos resource credentials. Gives access to a personal Cosmos container.
+Tvm response with Azure Cosmos resource credentials. Gives access to an isolated partition within a CosmosDB container.
 
 **Kind**: global typedef  
 **Properties**
@@ -209,9 +209,9 @@ Tvm response with Azure Cosmos resource credentials. Gives access to a personal 
 | --- | --- | --- |
 | endpoint | <code>string</code> | cosmosdb resource endpoint |
 | resourceToken | <code>string</code> | cosmosdb resource token restricted to access the items in the partitionKey |
-| partitionKey | <code>string</code> | key to accessible cosmosdb partition |
-| containerId | <code>string</code> | id to cosmosdb container where partition lives |
-| databaseId | <code>string</code> | id to cosmosdb database where container lives |
+| databaseId | <code>string</code> | id for cosmosdb database |
+| containerId | <code>string</code> | id for cosmosdb container within database |
+| partitionKey | <code>string</code> | key for cosmosdb partition within container authorized by resource token |
 | expiration | <code>string</code> | expiration date ISO/UTC |
 
 <a name="TvmResponseAwsS3"></a>

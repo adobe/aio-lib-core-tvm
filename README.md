@@ -20,7 +20,7 @@ For the server side code see: [adobe/adobeio-cna-token-vending-machine](https://
 ```javascript
 const TvmClient = require('@adobe/adobeio-cna-tvm-client')
 // init
-const tvm = TvmClient.init({ ow: { auth: '<myauth>', namespace: '<mynamespace>' } })
+const tvm = await TvmClient.init({ ow: { auth: '<myauth>', namespace: '<mynamespace>' } })
 
 // aws s3
 const awsS3Credentials = await tvm.getAwsS3Credentials()
