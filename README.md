@@ -19,6 +19,7 @@ For the server side code see: [adobe/adobeio-cna-token-vending-machine](https://
 
 ```javascript
 const TvmClient = require('@adobe/adobeio-cna-tvm-client')
+// init
 const tvm = TvmClient.init({ ow: { auth: '<myauth>', namespace: '<mynamespace>' } })
 
 // aws s3
@@ -35,6 +36,15 @@ const pipeline = azure.StorageURL.newPipeline(azureCreds)
 const containerURLPrivate = new azure.ContainerURL(azureBlobCredentials.sasURLPrivate, pipeline)
 const containerURLPublic = new azure.ContainerURL(azureBlobCredentials.sasURLPublic, pipeline)
 // ...operations on containerURLPrivate and containerURLPublic
+
+// azure cosmos
+const azureCosmosCredentials = await tvm.getAzureCosmosCredentials()
+const cosmos = require('@azure/cosmos')
+const container = new cosmos.CosmosClient({ endpoint: azureCosmosCredentials.endpoint, tokenProvider: async () => azureCosmosCredentials.resourceToken })
+                            .database(azureCosmosCredentials.databaseId)
+                            .container(azureCosmosCredentials.containerId)
+const data = await container.item('<itemKey>', azureCosmosCredentials.partitionKey).read()
+// ...operations on items within azureCosmosCredentials.partitionKey
 ```
 
 ## Explore
