@@ -88,6 +88,12 @@ describe('init', () => {
       const instantiate = async () => TvmClient.init(badInput)
       await expect(instantiate).toThrowBadArgWithMessageContaining(['ow', 'required'])
     })
+    test('unknown config key', async () => {
+      const badInput = { ...fakeTVMInput }
+      badInput.badKey = 'smthg'
+      const instantiate = async () => TvmClient.init(badInput)
+      await expect(instantiate).toThrowBadArgWithMessageContaining(['badKey', 'not allowed'])
+    })
   })
   describe('api url', () => {
     test('when not specified', async () => {
