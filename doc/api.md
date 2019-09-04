@@ -17,7 +17,7 @@
 </dd>
 <dt><a href="#TvmResponseAzureBlob">TvmResponseAzureBlob</a> : <code>object</code></dt>
 <dd><p>Tvm response with SAS Azure Blob credentials. Contains SAS credentials for a private and a publicly accessible (with access=<code>blob</code>) azure
-blob container. These two signed URLs can then be passed to the azure blob storage sdk, see the example below:</p>
+blob container. These two signed URLs can then be passed to the azure blob storage sdk.</p>
 </dd>
 <dt><a href="#TvmResponseAzureCosmos">TvmResponseAzureCosmos</a> : <code>object</code></dt>
 <dd><p>Tvm response with Azure Cosmos resource credentials. Gives access to an isolated partition within a CosmosDB container.</p>
@@ -25,7 +25,7 @@ blob container. These two signed URLs can then be passed to the azure blob stora
 <dt><a href="#TvmResponseAwsS3">TvmResponseAwsS3</a> : <code>object</code></dt>
 <dd><p>Tvm response with Aws S3 temporary credentials. These credentials give access to files in a restricted prefix:
 <code>&lt;your-namespace&gt;/</code>. Other locations in the bucket cannot be accessed. The response can be passed directly to the aws sdk
-to instantiate the s3 object, see the example below:</p>
+to instantiate the s3 object.</p>
 </dd>
 </dl>
 
@@ -186,7 +186,7 @@ An object holding the OpenWhisk credentials
 
 ## TvmResponseAzureBlob : <code>object</code>
 Tvm response with SAS Azure Blob credentials. Contains SAS credentials for a private and a publicly accessible (with access=`blob`) azure
-blob container. These two signed URLs can then be passed to the azure blob storage sdk, see the example below:
+blob container. These two signed URLs can then be passed to the azure blob storage sdk.
 
 **Kind**: global typedef  
 **Properties**
@@ -219,7 +219,7 @@ Tvm response with Azure Cosmos resource credentials. Gives access to an isolated
 ## TvmResponseAwsS3 : <code>object</code>
 Tvm response with Aws S3 temporary credentials. These credentials give access to files in a restricted prefix:
 `<your-namespace>/`. Other locations in the bucket cannot be accessed. The response can be passed directly to the aws sdk
-to instantiate the s3 object, see the example below:
+to instantiate the s3 object.
 
 **Kind**: global typedef  
 **Properties**
