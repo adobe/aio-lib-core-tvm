@@ -18,18 +18,14 @@
 <dt><a href="#TvmResponseAzureBlob">TvmResponseAzureBlob</a> : <code>object</code></dt>
 <dd><p>Tvm response with SAS Azure Blob credentials. Contains SAS credentials for a private and a publicly accessible (with access=<code>blob</code>) azure
 blob container. These two signed URLs can then be passed to the azure blob storage sdk, see the example below:</p>
-<pre><code class="language-javascript">const azure = require(&#39;@azure/storage-blob&#39;)
-const azureCreds = new azure.AnonymousCredential()
-const pipeline = azure.StorageURL.newPipeline(azureCreds)
-const containerURLPrivate = new azure.ContainerURL(tvmResponse.sasURLPrivate, pipeline)
-const containerURLPublic = new azure.ContainerURL(tvmResponse.sasURLPublic, pipeline)</code></pre>
+</dd>
+<dt><a href="#TvmResponseAzureCosmos">TvmResponseAzureCosmos</a> : <code>object</code></dt>
+<dd><p>Tvm response with Azure Cosmos resource credentials. Gives access to an isolated partition within a CosmosDB container.</p>
 </dd>
 <dt><a href="#TvmResponseAwsS3">TvmResponseAwsS3</a> : <code>object</code></dt>
 <dd><p>Tvm response with Aws S3 temporary credentials. These credentials give access to files in a restricted prefix:
 <code>&lt;your-namespace&gt;/</code>. Other locations in the bucket cannot be accessed. The response can be passed directly to the aws sdk
 to instantiate the s3 object, see the example below:</p>
-<pre><code class="language-javascript">const aws = require(&#39;aws-sdk&#39;)
-const s3 = new aws.S3(tvmResponse)</code></pre>
 </dd>
 </dl>
 
@@ -44,13 +40,24 @@ Client SDK for Token Vending Machine (TVM)
     * _instance_
         * [.getAzureBlobCredentials()](#TvmClient+getAzureBlobCredentials) ⇒ [<code>Promise.&lt;TvmResponseAzureBlob&gt;</code>](#TvmResponseAzureBlob)
         * [.getAwsS3Credentials()](#TvmClient+getAwsS3Credentials) ⇒ [<code>Promise.&lt;TvmResponseAwsS3&gt;</code>](#TvmResponseAwsS3)
+        * [.getAzureCosmosCredentials()](#TvmClient+getAzureCosmosCredentials) ⇒ [<code>Promise.&lt;TvmResponseAzureCosmos&gt;</code>](#TvmResponseAzureCosmos)
     * _static_
-        * [.init(config)](#TvmClient.init) ⇒ [<code>TvmClient</code>](#TvmClient)
+        * [.init(config)](#TvmClient.init) ⇒ [<code>Promise.&lt;TvmClient&gt;</code>](#TvmClient)
 
 <a name="TvmClient+getAzureBlobCredentials"></a>
 
 ### tvmClient.getAzureBlobCredentials() ⇒ [<code>Promise.&lt;TvmResponseAzureBlob&gt;</code>](#TvmResponseAzureBlob)
 Request temporary credentials for Azure blob storage.
+
+ ```javascript
+const tvmResponse = await tvm.getAzureBlobCredentials()
+
+const azure = require('@azure/storage-blob')
+const azureCreds = new azure.AnonymousCredential()
+const pipeline = azure.StorageURL.newPipeline(azureCreds)
+const containerURLPrivate = new azure.ContainerURL(tvmResponse.sasURLPrivate, pipeline)
+const containerURLPublic = new azure.ContainerURL(tvmResponse.sasURLPublic, pipeline)
+```
 
 **Kind**: instance method of [<code>TvmClient</code>](#TvmClient)  
 **Returns**: [<code>Promise.&lt;TvmResponseAzureBlob&gt;</code>](#TvmResponseAzureBlob) - SAS credentials for Azure  
@@ -63,19 +70,51 @@ Request temporary credentials for Azure blob storage.
 ### tvmClient.getAwsS3Credentials() ⇒ [<code>Promise.&lt;TvmResponseAwsS3&gt;</code>](#TvmResponseAwsS3)
 Request temporary credentials for AWS S3.
 
+```javascript
+const tvmResponse = await tvm.getAwsS3Credentials()
+
+const aws = require('aws-sdk')
+const s3 = new aws.S3(tvmResponse)
+```
+
 **Kind**: instance method of [<code>TvmClient</code>](#TvmClient)  
 **Returns**: [<code>Promise.&lt;TvmResponseAwsS3&gt;</code>](#TvmResponseAwsS3) - Temporary credentials for AWS S3  
 **Throws**:
 
 - [<code>TvmError</code>](#TvmError) 
 
+<a name="TvmClient+getAzureCosmosCredentials"></a>
+
+### tvmClient.getAzureCosmosCredentials() ⇒ [<code>Promise.&lt;TvmResponseAzureCosmos&gt;</code>](#TvmResponseAzureCosmos)
+Request temporary credentials for Azure CosmosDB.
+
+```javascript
+const azureCosmosCredentials = await tvm.getAzureCosmosCredentials()
+const cosmos = require('@azure/cosmos')
+const container = new cosmos.CosmosClient({ endpoint: azureCosmosCredentials.endpoint, tokenProvider: async () => azureCosmosCredentials.resourceToken })
+                            .database(azureCosmosCredentials.databaseId)
+                            .container(azureCosmosCredentials.containerId)
+const data = await container.item('<itemKey>', azureCosmosCredentials.partitionKey).read()
+```
+
+**Kind**: instance method of [<code>TvmClient</code>](#TvmClient)  
+**Returns**: [<code>Promise.&lt;TvmResponseAzureCosmos&gt;</code>](#TvmResponseAzureCosmos) - Temporary credentials for Azure Cosmos  
+**Throws**:
+
+- [<code>TvmError</code>](#TvmError) 
+
 <a name="TvmClient.init"></a>
 
-### TvmClient.init(config) ⇒ [<code>TvmClient</code>](#TvmClient)
+### TvmClient.init(config) ⇒ [<code>Promise.&lt;TvmClient&gt;</code>](#TvmClient)
 Creates a TvmClient instance
 
+```javascript
+const TvmClient = require('@adobe/adobeio-cna-tvm-client')
+const tvm = await TvmClient.init({ ow: { namespace, auth } })
+```
+
 **Kind**: static method of [<code>TvmClient</code>](#TvmClient)  
-**Returns**: [<code>TvmClient</code>](#TvmClient) - new instance  
+**Returns**: [<code>Promise.&lt;TvmClient&gt;</code>](#TvmClient) - new instance  
 **Throws**:
 
 - [<code>TvmError</code>](#TvmError) 
@@ -85,7 +124,7 @@ Creates a TvmClient instance
 | --- | --- | --- |
 | config | <code>object</code> | TvmClientParams |
 | config.apiUrl | <code>string</code> | url to tvm api |
-| config.ow | [<code>OpenWhiskCredentials</code>](#OpenWhiskCredentials) | Openwhisk credentials |
+| [config.ow] | [<code>OpenWhiskCredentials</code>](#OpenWhiskCredentials) | Openwhisk credentials. As an alternative you can pass those through environment variables: `__OW_NAMESPACE` and `__OW_AUTH` |
 | [config.cacheFile] | <code>string</code> | if omitted defaults to tmpdir/.tvmCache, use false or null to not cache |
 
 <a name="TvmError"></a>
@@ -149,14 +188,6 @@ An object holding the OpenWhisk credentials
 Tvm response with SAS Azure Blob credentials. Contains SAS credentials for a private and a publicly accessible (with access=`blob`) azure
 blob container. These two signed URLs can then be passed to the azure blob storage sdk, see the example below:
 
-```javascript
-const azure = require('@azure/storage-blob')
-const azureCreds = new azure.AnonymousCredential()
-const pipeline = azure.StorageURL.newPipeline(azureCreds)
-const containerURLPrivate = new azure.ContainerURL(tvmResponse.sasURLPrivate, pipeline)
-const containerURLPublic = new azure.ContainerURL(tvmResponse.sasURLPublic, pipeline)
-```
-
 **Kind**: global typedef  
 **Properties**
 
@@ -166,17 +197,29 @@ const containerURLPublic = new azure.ContainerURL(tvmResponse.sasURLPublic, pipe
 | sasURLPublic | <code>string</code> | sas url to existing public (with access=`blob`) azure blob container |
 | expiration | <code>string</code> | expiration date ISO/UTC |
 
+<a name="TvmResponseAzureCosmos"></a>
+
+## TvmResponseAzureCosmos : <code>object</code>
+Tvm response with Azure Cosmos resource credentials. Gives access to an isolated partition within a CosmosDB container.
+
+**Kind**: global typedef  
+**Properties**
+
+| Name | Type | Description |
+| --- | --- | --- |
+| endpoint | <code>string</code> | cosmosdb resource endpoint |
+| resourceToken | <code>string</code> | cosmosdb resource token restricted to access the items in the partitionKey |
+| databaseId | <code>string</code> | id for cosmosdb database |
+| containerId | <code>string</code> | id for cosmosdb container within database |
+| partitionKey | <code>string</code> | key for cosmosdb partition within container authorized by resource token |
+| expiration | <code>string</code> | expiration date ISO/UTC |
+
 <a name="TvmResponseAwsS3"></a>
 
 ## TvmResponseAwsS3 : <code>object</code>
 Tvm response with Aws S3 temporary credentials. These credentials give access to files in a restricted prefix:
 `<your-namespace>/`. Other locations in the bucket cannot be accessed. The response can be passed directly to the aws sdk
 to instantiate the s3 object, see the example below:
-
-```javascript
-const aws = require('aws-sdk')
-const s3 = new aws.S3(tvmResponse)
-```
 
 **Kind**: global typedef  
 **Properties**
