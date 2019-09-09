@@ -109,7 +109,7 @@ const data = await container.item('<itemKey>', azureCosmosCredentials.partitionK
 Creates a TvmClient instance
 
 ```javascript
-const TvmClient = require('@adobe/adobeio-cna-tvm-client')
+const TvmClient = require('@adobe/aio-lib-tvm')
 const tvm = await TvmClient.init({ ow: { namespace, auth } })
 ```
 

@@ -1,24 +1,24 @@
-[![Version](https://img.shields.io/npm/v/@adobe/adobeio-cna-tvm-client.svg)](https://npmjs.org/package/@adobe/adobeio-cna-tvm-client)
-[![Downloads/week](https://img.shields.io/npm/dw/@adobe/adobeio-cna-tvm-client.svg)](https://npmjs.org/package/@adobe/adobeio-cna-tvm-client)
-[![Build Status](https://travis-ci.com/adobe/adobeio-cna-tvm-client.svg?branch=master)](https://travis-ci.com/adobe/adobeio-cna-tvm-client)
+[![Version](https://img.shields.io/npm/v/@adobe/@adobe/aio-lib-tvm.svg)](https://npmjs.org/package/@adobe/aio-lib-tvm)
+[![Downloads/week](https://img.shields.io/npm/dw/@adobe/aio-lib-tvm.svg)](https://npmjs.org/package/@adobe/aio-lib-tvm)
+[![Build Status](https://travis-ci.com/adobe/aio-lib-tvm.svg?branch=master)](https://travis-ci.com/adobe/aio-lib-tvm)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![Codecov
-Coverage](https://img.shields.io/codecov/c/github/adobe/adobeio-cna-tvm-client/master.svg?style=flat-square)](https://codecov.io/gh/adobe/adobeio-cna-tvm-client/)
+Coverage](https://img.shields.io/codecov/c/github/adobe/aio-lib-tvm/master.svg?style=flat-square)](https://codecov.io/gh/adobe/aio-lib-tvm/)
 
-# Adobe I/O CNA Token Vending Machine Client
+# Adobe I/O Lib Token Vending Machine
 
 A JS client to access the token vending machine.
 
-For the server side code see: [adobe/adobeio-cna-token-vending-machine](https://github.com/adobe/adobeio-cna-token-vending-machine)
+For more details on the server side, `goto` [adobe/aio-tvm](https://github.com/adobe/aio-tvm)
 
 ## Install
 
-`npm install @adobe/adobeio-cna-tvm-client`
+`npm install @adobe/aio-lib-tvm`
 
 ## Use
 
 ```javascript
-const TvmClient = require('@adobe/adobeio-cna-tvm-client')
+const TvmClient = require('@adobe/aio-lib-tvm')
 // init
 const tvm = await TvmClient.init({ ow: { auth: '<myauth>', namespace: '<mynamespace>' } })
 
