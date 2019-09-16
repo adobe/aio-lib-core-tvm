@@ -1,4 +1,4 @@
-[![Version](https://img.shields.io/npm/v/@adobe/@adobe/aio-lib-tvm.svg)](https://npmjs.org/package/@adobe/aio-lib-tvm)
+[![Version](https://img.shields.io/npm/v/@adobe/aio-lib-tvm.svg)](https://npmjs.org/package/@adobe/aio-lib-tvm)
 [![Downloads/week](https://img.shields.io/npm/dw/@adobe/aio-lib-tvm.svg)](https://npmjs.org/package/@adobe/aio-lib-tvm)
 [![Build Status](https://travis-ci.com/adobe/aio-lib-tvm.svg?branch=master)](https://travis-ci.com/adobe/aio-lib-tvm)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
