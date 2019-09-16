@@ -30,13 +30,14 @@ let fakeAzureCosmosResponse
 const wrapInFetchResponse = (body) => {
   return {
     ok: true,
-    json: () => body
+    json: async () => body
   }
 }
 const wrapInFetchError = (status) => {
   return {
     ok: false,
-    json: () => 'error',
+    json: async () => 'error',
+    text: async () => 'error',
     status
   }
 }

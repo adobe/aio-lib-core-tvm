@@ -4,9 +4,6 @@
 <dt><a href="#TvmClient">TvmClient</a></dt>
 <dd><p>Client SDK for Token Vending Machine (TVM)</p>
 </dd>
-<dt><a href="#TvmError">TvmError</a> ⇐ <code>Error</code></dt>
-<dd><p>Token Vending Machine Client Errors</p>
-</dd>
 </dl>
 
 ## Typedefs
@@ -26,6 +23,9 @@ blob container. These two signed URLs can then be passed to the azure blob stora
 <dd><p>Tvm response with Aws S3 temporary credentials. These credentials give access to files in a restricted prefix:
 <code>&lt;your-namespace&gt;/</code>. Other locations in the bucket cannot be accessed. The response can be passed directly to the aws sdk
 to instantiate the s3 object.</p>
+</dd>
+<dt><a href="#TvmLibErrors">TvmLibErrors</a> : <code>object</code></dt>
+<dd><p>Tvm lib custom errors</p>
 </dd>
 </dl>
 
@@ -63,7 +63,7 @@ const containerURLPublic = new azure.ContainerURL(tvmResponse.sasURLPublic, pipe
 **Returns**: [<code>Promise.&lt;TvmResponseAzureBlob&gt;</code>](#TvmResponseAzureBlob) - SAS credentials for Azure  
 **Throws**:
 
-- [<code>TvmError</code>](#TvmError) 
+- <code>ERROR\_RESPONSE</code> 
 
 <a name="TvmClient+getAwsS3Credentials"></a>
 
@@ -81,7 +81,7 @@ const s3 = new aws.S3(tvmResponse)
 **Returns**: [<code>Promise.&lt;TvmResponseAwsS3&gt;</code>](#TvmResponseAwsS3) - Temporary credentials for AWS S3  
 **Throws**:
 
-- [<code>TvmError</code>](#TvmError) 
+- <code>ERROR\_RESPONSE</code> 
 
 <a name="TvmClient+getAzureCosmosCredentials"></a>
 
@@ -101,7 +101,7 @@ const data = await container.item('<itemKey>', azureCosmosCredentials.partitionK
 **Returns**: [<code>Promise.&lt;TvmResponseAzureCosmos&gt;</code>](#TvmResponseAzureCosmos) - Temporary credentials for Azure Cosmos  
 **Throws**:
 
-- [<code>TvmError</code>](#TvmError) 
+- <code>ERROR\_RESPONSE</code> 
 
 <a name="TvmClient.init"></a>
 
@@ -117,57 +117,15 @@ const tvm = await TvmClient.init({ ow: { namespace, auth } })
 **Returns**: [<code>Promise.&lt;TvmClient&gt;</code>](#TvmClient) - new instance  
 **Throws**:
 
-- [<code>TvmError</code>](#TvmError) 
+- <code>ERROR\_BAD\_ARGUMENT</code> 
 
 
 | Param | Type | Description |
 | --- | --- | --- |
 | config | <code>object</code> | TvmClientParams |
-| config.apiUrl | <code>string</code> | url to tvm api |
+| [config.apiUrl] | <code>string</code> | url to tvm api - defaults to https://adobeio.adobeioruntime.net/apis/tvm |
 | [config.ow] | [<code>OpenWhiskCredentials</code>](#OpenWhiskCredentials) | Openwhisk credentials. As an alternative you can pass those through environment variables: `__OW_NAMESPACE` and `__OW_AUTH` |
 | [config.cacheFile] | <code>string</code> | if omitted defaults to tmpdir/.tvmCache, use false or null to not cache |
-
-<a name="TvmError"></a>
-
-## TvmError ⇐ <code>Error</code>
-Token Vending Machine Client Errors
-
-**Kind**: global class  
-**Extends**: <code>Error</code>  
-
-* [TvmError](#TvmError) ⇐ <code>Error</code>
-    * [.TvmError](#TvmError.TvmError)
-        * [new TvmError(message, code, [status])](#new_TvmError.TvmError_new)
-    * [.codes](#TvmError.codes) : <code>enum</code>
-
-<a name="TvmError.TvmError"></a>
-
-### TvmError.TvmError
-**Kind**: static class of [<code>TvmError</code>](#TvmError)  
-<a name="new_TvmError.TvmError_new"></a>
-
-#### new TvmError(message, code, [status])
-Creates an instance of TvmError.
-
-
-| Param | Type | Description |
-| --- | --- | --- |
-| message | <code>string</code> | error message |
-| code | [<code>codes</code>](#TvmError.codes) | Storage Error code |
-| [status] | <code>number</code> | status code in case of request error |
-
-<a name="TvmError.codes"></a>
-
-### TvmError.codes : <code>enum</code>
-TvmError codes
-
-**Kind**: static enum of [<code>TvmError</code>](#TvmError)  
-**Properties**
-
-| Name | Type | Default |
-| --- | --- | --- |
-| BadArgument | <code>string</code> | <code>&quot;BadArgument&quot;</code> | 
-| StatusError | <code>string</code> | <code>&quot;StatusError&quot;</code> | 
 
 <a name="OpenWhiskCredentials"></a>
 
@@ -232,4 +190,17 @@ to instantiate the s3 object.
 | expiration | <code>string</code> | date ISO/UTC |
 | params | <code>object</code> |  |
 | params.Bucket | <code>string</code> | bucket name |
+
+<a name="TvmLibErrors"></a>
+
+## TvmLibErrors : <code>object</code>
+Tvm lib custom errors
+
+**Kind**: global typedef  
+**Properties**
+
+| Name | Type | Description |
+| --- | --- | --- |
+| ERROR_BAD_ARGUMENT | <code>TvmLibError</code> | this error is thrown when an argument is missing or has invalid type |
+| ERROR_RESPONSE | <code>TvmLibError</code> | this error is thrown when the TVM server returns an error response (e.g 401 unauthorized for missing Authorization header or 403 for bad credentials). The status can be retrieved from the `e.sdkDetails.status` field and the body from `e.sdkDetails.body` |
 
