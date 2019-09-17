@@ -21,7 +21,7 @@ async function toThrowWithCodeAndMessageContains (received, code, words, status)
       return { message: () => `expected error to be instanceof 'TvmLibError', instead received "${e.constructor.name}" with message: "${e.message}"`, pass: false }
     }
     if (e.code !== code) {
-      return { message: () => `expected error to be instanceof 'TvmLibError', instead received "${e.constructor.name}" with message: "${e.message}"`, pass: false }
+      return { message: () => `expected error code to be "${code}", instead received "${e.code}" with message: "${e.message}"`, pass: false }
     }
     if (status && e.sdkDetails.status !== status) {
       return { message: () => `expected error with http status "${status}", instead received "${e.status}" with message: "${e.message}"`, pass: false }
