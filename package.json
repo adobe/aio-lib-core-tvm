@@ -1,5 +1,5 @@
 {
-  "name": "@adobe/aio-lib-tvm",
+  "name": "@adobe/aio-lib-core-tvm",
   "version": "0.6.0",
   "description": "A JS client to access the Adobe I/O token vending machine",
   "main": "index.js",
@@ -11,20 +11,21 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/adobe/aio-lib-tvm.git"
+    "url": "git+https://github.com/adobe/aio-lib-core-tvm.git"
   },
   "keywords": [
-    "sdk",
+    "core-sdk",
     "nodejs",
     "adobeio",
-    "cloud-native"
+    "cloud-native",
+    "client"
   ],
   "author": "Adobe Inc.",
   "license": "Apache-2.0",
   "bugs": {
-    "url": "https://github.com/adobe/aio-lib-tvm/issues"
+    "url": "https://github.com/adobe/aio-lib-core-tvm/issues"
   },
-  "homepage": "https://github.com/adobe/aio-lib-tvm#readme",
+  "homepage": "https://github.com/adobe/aio-lib-core-tvm#readme",
   "devDependencies": {
     "@types/jest": "^24.0.17",
     "@types/hapi__joi": "^15.0.3",
