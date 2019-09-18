@@ -1,11 +1,11 @@
-[![Version](https://img.shields.io/npm/v/@adobe/aio-lib-tvm.svg)](https://npmjs.org/package/@adobe/aio-lib-tvm)
-[![Downloads/week](https://img.shields.io/npm/dw/@adobe/aio-lib-tvm.svg)](https://npmjs.org/package/@adobe/aio-lib-tvm)
-[![Build Status](https://travis-ci.com/adobe/aio-lib-tvm.svg?branch=master)](https://travis-ci.com/adobe/aio-lib-tvm)
+[![Version](https://img.shields.io/npm/v/@adobe/aio-lib-core-tvm.svg)](https://npmjs.org/package/@adobe/aio-lib-core-tvm)
+[![Downloads/week](https://img.shields.io/npm/dw/@adobe/aio-lib-core-tvm.svg)](https://npmjs.org/package/@adobe/aio-lib-core-tvm)
+[![Build Status](https://travis-ci.com/adobe/aio-lib-core-tvm.svg?branch=master)](https://travis-ci.com/adobe/aio-lib-core-tvm)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![Codecov
-Coverage](https://img.shields.io/codecov/c/github/adobe/aio-lib-tvm/master.svg?style=flat-square)](https://codecov.io/gh/adobe/aio-lib-tvm/)
+Coverage](https://img.shields.io/codecov/c/github/adobe/aio-lib-core-tvm/master.svg?style=flat-square)](https://codecov.io/gh/adobe/aio-lib-core-tvm/)
 
-# Adobe I/O Lib Token Vending Machine
+# Adobe I/O Lib Core Token Vending Machine
 
 A JS client to access the token vending machine.
 
@@ -13,12 +13,12 @@ For more details on the server side, `goto` [adobe/aio-tvm](https://github.com/a
 
 ## Install
 
-`npm install @adobe/aio-lib-tvm`
+`npm install @adobe/aio-lib-core-tvm`
 
 ## Use
 
 ```javascript
-const TvmClient = require('@adobe/aio-lib-tvm')
+const TvmClient = require('@adobe/aio-lib-core-tvm')
 // init
 const tvm = await TvmClient.init({ ow: { auth: '<myauth>', namespace: '<mynamespace>' } })
 
