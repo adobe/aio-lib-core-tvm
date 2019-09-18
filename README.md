@@ -5,7 +5,7 @@
 [![Codecov
 Coverage](https://img.shields.io/codecov/c/github/adobe/aio-lib-core-tvm/master.svg?style=flat-square)](https://codecov.io/gh/adobe/aio-lib-core-tvm/)
 
-# Adobe I/O Lib Token Vending Machine
+# Adobe I/O Lib Core Token Vending Machine
 
 A JS client to access the token vending machine.
 
