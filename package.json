@@ -42,7 +42,7 @@
     "jsdoc-to-markdown": "^5.0.0"
   },
   "dependencies": {
-    "@adobe/aio-lib-core-errors": "^1.0.0",
+    "@adobe/aio-lib-core-errors": "^2.0.0",
     "@hapi/joi": "^15.1.0",
     "fs-extra": "^8.0.1",
     "node-fetch": "^2.6.0",
