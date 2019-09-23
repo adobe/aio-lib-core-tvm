@@ -6,13 +6,18 @@
   "scripts": {
     "lint": "eslint index.js lib/**/*.js test/**/*.js",
     "beautify": "npm run lint -- --fix",
-    "test": "jest -c ./jest.config.js && npm run lint",
+    "test": "jest -c ./jest.config.unit.js && npm run lint",
+    "e2e": "jest -c ./jest.config.e2e.js",
     "generate-jsdoc": "jsdoc2md -f index.js 'lib/**/*.js' > doc/api.md"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/adobe/aio-lib-core-tvm.git"
   },
+  "files": [
+    "lib/",
+    "index.js"
+  ],
   "keywords": [
     "core-sdk",
     "nodejs",
