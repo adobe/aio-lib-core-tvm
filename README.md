@@ -51,6 +51,10 @@ const data = await container.item('<itemKey>', azureCosmosCredentials.partitionK
 
 `goto` [API](doc/api.md)
 
+## Debug
+
+set `DEBUG=@adobe/aio-lib-core-tvm` to see debug logs.
+
 ## Contributing
 
 Contributions are welcomed! Read the [Contributing Guide](./.github/CONTRIBUTING.md) for more information.
