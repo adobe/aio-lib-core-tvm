@@ -43,7 +43,7 @@
   },
   "dependencies": {
     "@adobe/aio-lib-core-errors": "^2.0.0",
-    "@adobe/aio-lib-core-logging": "0.0.2",
+    "@adobe/aio-lib-core-logging": "0.0.3",
     "@hapi/joi": "^15.1.0",
     "fs-extra": "^8.0.1",
     "lodash.clonedeep": "^4.5.0",
