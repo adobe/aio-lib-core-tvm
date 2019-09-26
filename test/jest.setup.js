@@ -31,7 +31,7 @@ async function toThrowWithCodeAndMessageContains (received, code, words, status)
     message = message.toLowerCase()
     if (typeof words === 'string') words = [words]
     for (let i = 0; i < words.length; ++i) {
-      let a = words[i].toLowerCase()
+      const a = words[i].toLowerCase()
       if (message.indexOf(a) < 0) {
         return { message: () => `expected error message "${message}" to contain "${a}"`, pass: false }
       }

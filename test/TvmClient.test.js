@@ -97,8 +97,8 @@ beforeEach(async () => {
     containerId: 'fakeContainer'
   }
   cacheContent = JSON.stringify({ [genCacheKey(fakeTVMInput)]: fakeAzureTVMResponse })
-  delete process.env['__OW_AUTH']
-  delete process.env['__OW_NAMESPACE']
+  delete process.env.__OW_AUTH
+  delete process.env.__OW_NAMESPACE
 })
 
 describe('init', () => {
@@ -145,20 +145,20 @@ describe('init', () => {
   })
   describe('pass ow through env', () => {
     test('when passing auth in __OW_AUTH', async () => {
-      process.env['__OW_AUTH'] = fakeTVMInput.ow.auth
+      process.env.__OW_AUTH = fakeTVMInput.ow.auth
       delete fakeTVMInput.ow.auth
       const tvm = await TvmClient.init(fakeTVMInput)
       expect(tvm.apiUrl).toEqual(TvmClient.DefaultApiHost)
     })
     test('when passing namespace in __OW_NAMESPACE', async () => {
-      process.env['__OW_NAMESPACE'] = fakeTVMInput.ow.namespace
+      process.env.__OW_NAMESPACE = fakeTVMInput.ow.namespace
       delete fakeTVMInput.ow.namespace
       const tvm = await TvmClient.init(fakeTVMInput)
       expect(tvm.apiUrl).toEqual(TvmClient.DefaultApiHost)
     })
     test('when passing both namespace and auth in __OW_NAMESPACE and __OW_AUTH', async () => {
-      process.env['__OW_AUTH'] = fakeTVMInput.ow.auth
-      process.env['__OW_NAMESPACE'] = fakeTVMInput.ow.namespace
+      process.env.__OW_AUTH = fakeTVMInput.ow.auth
+      process.env.__OW_NAMESPACE = fakeTVMInput.ow.namespace
       const tvm = await TvmClient.init()
       expect(tvm.apiUrl).toEqual(TvmClient.DefaultApiHost)
     })
@@ -181,7 +181,7 @@ describe('getAzureBlobCredentials', () => {
       // calls with namespace as path arg
       expect(fetch.mock.calls[0][0]).toEqual(TvmClient.DefaultApiHost + '/' + TvmClient.AzureBlobEndpoint + '/' + fakeTVMInput.ow.namespace)
       // adds Authorization header
-      expect(fetch.mock.calls[0][1].headers).toEqual(expect.objectContaining({ 'Authorization': fakeTVMInput.ow.auth }))
+      expect(fetch.mock.calls[0][1].headers).toEqual(expect.objectContaining({ Authorization: fakeTVMInput.ow.auth }))
       expect(fs.readFile).toHaveBeenCalledTimes(0)
       expect(fs.writeFile).toHaveBeenCalledTimes(0)
       expect(mockLogDebug).toHaveBeenCalledWith(expect.stringContaining(fetchTvmLog))
@@ -211,7 +211,7 @@ describe('getAzureBlobCredentials', () => {
   })
   describe('with caching to file', () => {
     test('when default cache file exists (when cacheFile=undefined)', async () => {
-      fetch.mockResolvedValue(wrapInFetchResponse({ 'bad': 'response' }))
+      fetch.mockResolvedValue(wrapInFetchResponse({ bad: 'response' }))
       fs.readFile.mockResolvedValue(Buffer.from(cacheContent))
 
       const tvmClient = await TvmClient.init(fakeTVMInput)
@@ -222,7 +222,7 @@ describe('getAzureBlobCredentials', () => {
       expect(mockLogDebug).toHaveBeenCalledWith(expect.stringContaining(readCacheLog))
     })
     test('when specified cache file exists', async () => {
-      fetch.mockResolvedValue(wrapInFetchResponse({ 'bad': 'response' }))
+      fetch.mockResolvedValue(wrapInFetchResponse({ bad: 'response' }))
       fs.readFile.mockResolvedValue(Buffer.from(cacheContent))
       fakeTVMInput.cacheFile = '/cache'
       const tvmClient = await TvmClient.init(fakeTVMInput)
@@ -286,7 +286,7 @@ describe('getAwsS3Credentials', () => {
     const creds = await tvmClient.getAwsS3Credentials()
     expect(creds).toEqual(fakeAwsS3Response)
     expect(fetch.mock.calls[0][0]).toEqual(TvmClient.DefaultApiHost + '/' + TvmClient.AwsS3Endpoint + '/' + fakeTVMInput.ow.namespace)
-    expect(fetch.mock.calls[0][1].headers).toEqual(expect.objectContaining({ 'Authorization': fakeTVMInput.ow.auth }))
+    expect(fetch.mock.calls[0][1].headers).toEqual(expect.objectContaining({ Authorization: fakeTVMInput.ow.auth }))
   })
 })
 
@@ -300,6 +300,6 @@ describe('getAzureCosmosCredentials', () => {
     const creds = await tvmClient.getAzureCosmosCredentials()
     expect(creds).toEqual(fakeAzureCosmosResponse)
     expect(fetch.mock.calls[0][0]).toEqual(TvmClient.DefaultApiHost + '/' + TvmClient.AzureCosmosEndpoint + '/' + fakeTVMInput.ow.namespace)
-    expect(fetch.mock.calls[0][1].headers).toEqual(expect.objectContaining({ 'Authorization': fakeTVMInput.ow.auth }))
+    expect(fetch.mock.calls[0][1].headers).toEqual(expect.objectContaining({ Authorization: fakeTVMInput.ow.auth }))
   })
 })
