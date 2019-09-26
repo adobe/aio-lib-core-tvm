@@ -53,7 +53,7 @@ const data = await container.item('<itemKey>', azureCosmosCredentials.partitionK
 
 ## Debug
 
-set `DEBUG=@adobe/aio-lib-core-tvm` to see debug logs.
+set `DEBUG=@adobe/aio-lib-core-tvm*` to see debug logs.
 
 ## Contributing
 
