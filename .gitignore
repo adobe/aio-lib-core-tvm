@@ -27,4 +27,5 @@ coverage
 #custom
 playground
 
-.tvmCachepackage-lock.json
+.tvmCache
+package-lock.json
