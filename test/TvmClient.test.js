@@ -18,6 +18,9 @@ jest.mock('fs-extra')
 const fetch = require('node-fetch')
 jest.mock('node-fetch')
 
+const crypto = require('crypto')
+jest.mock('crypto')
+
 const mockLogDebug = jest.fn()
 const mockLogError = jest.fn()
 jest.doMock('@adobe/aio-lib-core-logging', function () {
@@ -56,15 +59,20 @@ const wrapInFetchError = (status) => {
   }
 }
 
-const genCacheKey = (input) => input.ow.namespace + '-' + (input.apiUrl || TvmClient.DefaultApiHost) + '/' + TvmClient.AzureBlobEndpoint
+const setCacheKey = (input) => crypto.createHash.mockReturnValue({
+  update: () => ({
+    digest: () => input
+  })
+})
 
 beforeEach(async () => {
   expect.hasAssertions()
-  await jest.restoreAllMocks()
+  jest.resetAllMocks()
   fs.readFile.mockReset()
   fs.writeFile.mockReset()
 
   fetch.mockReset()
+  crypto.createHash.mockReset()
 
   mockLogDebug.mockReset()
   mockLogError.mockReset()
@@ -96,7 +104,8 @@ beforeEach(async () => {
     databaseId: 'fakeDB',
     containerId: 'fakeContainer'
   }
-  cacheContent = JSON.stringify({ [genCacheKey(fakeTVMInput)]: fakeAzureTVMResponse })
+  setCacheKey('fakeCacheKey')
+  cacheContent = JSON.stringify({ fakeCacheKey: fakeAzureTVMResponse })
   delete process.env.__OW_AUTH
   delete process.env.__OW_NAMESPACE
 })
@@ -255,12 +264,12 @@ describe('getAzureBlobCredentials', () => {
       const creds = await tvmClient.getAzureBlobCredentials()
 
       expect(creds).toEqual(fakeAzureTVMResponse)
-      expect(fs.writeFile).toHaveBeenCalledWith(TvmClient.DefaultTVMCacheFile, JSON.stringify({ ...prevObject, [genCacheKey(fakeTVMInput)]: fakeAzureTVMResponse }))
+      expect(fs.writeFile).toHaveBeenCalledWith(TvmClient.DefaultTVMCacheFile, JSON.stringify({ ...prevObject, fakeCacheKey: fakeAzureTVMResponse }))
       expect(mockLogDebug).toHaveBeenCalledWith(expect.stringContaining(writeCacheLog))
     })
 
     test('when cache for same key exists but is expired', async () => {
-      const prevObject = { [genCacheKey(fakeTVMInput)]: { fake: 'creds', expiration: minDate } }
+      const prevObject = { fakeCacheKey: { fake: 'creds', expiration: minDate } }
       fetch.mockResolvedValue(wrapInFetchResponse(fakeAzureTVMResponse))
       fs.readFile.mockResolvedValue(Buffer.from(JSON.stringify(prevObject)))
 
@@ -268,7 +277,7 @@ describe('getAzureBlobCredentials', () => {
       const creds = await tvmClient.getAzureBlobCredentials()
 
       expect(creds).toEqual(fakeAzureTVMResponse)
-      expect(fs.writeFile).toHaveBeenCalledWith(TvmClient.DefaultTVMCacheFile, JSON.stringify({ [genCacheKey(fakeTVMInput)]: fakeAzureTVMResponse }))
+      expect(fs.writeFile).toHaveBeenCalledWith(TvmClient.DefaultTVMCacheFile, JSON.stringify({ fakeCacheKey: fakeAzureTVMResponse }))
       expect(mockLogDebug).toHaveBeenCalledWith(expect.stringContaining(expiredCacheLog))
       expect(mockLogDebug).toHaveBeenCalledWith(expect.stringContaining(fetchTvmLog))
       expect(mockLogDebug).toHaveBeenCalledWith(expect.stringContaining(writeCacheLog))
