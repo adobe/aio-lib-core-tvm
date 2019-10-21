@@ -63,7 +63,7 @@ const containerURLPublic = new azure.ContainerURL(tvmResponse.sasURLPublic, pipe
 **Returns**: [<code>Promise.&lt;TvmResponseAzureBlob&gt;</code>](#TvmResponseAzureBlob) - SAS credentials for Azure  
 **Throws**:
 
-- <code>ERROR\_RESPONSE</code> 
+- <code>codes.ERROR\_RESPONSE</code> 
 
 <a name="TvmClient+getAwsS3Credentials"></a>
 
@@ -81,7 +81,7 @@ const s3 = new aws.S3(tvmResponse)
 **Returns**: [<code>Promise.&lt;TvmResponseAwsS3&gt;</code>](#TvmResponseAwsS3) - Temporary credentials for AWS S3  
 **Throws**:
 
-- <code>ERROR\_RESPONSE</code> 
+- <code>codes.ERROR\_RESPONSE</code> 
 
 <a name="TvmClient+getAzureCosmosCredentials"></a>
 
@@ -101,7 +101,7 @@ const data = await container.item('<itemKey>', azureCosmosCredentials.partitionK
 **Returns**: [<code>Promise.&lt;TvmResponseAzureCosmos&gt;</code>](#TvmResponseAzureCosmos) - Temporary credentials for Azure Cosmos  
 **Throws**:
 
-- <code>ERROR\_RESPONSE</code> 
+- <code>codes.ERROR\_RESPONSE</code> 
 
 <a name="TvmClient.init"></a>
 
@@ -109,7 +109,7 @@ const data = await container.item('<itemKey>', azureCosmosCredentials.partitionK
 Creates a TvmClient instance
 
 ```javascript
-const TvmClient = require('@adobe/aio-lib-tvm')
+const TvmClient = require('@adobe/aio-lib-core-tvm')
 const tvm = await TvmClient.init({ ow: { namespace, auth } })
 ```
 
@@ -117,14 +117,14 @@ const tvm = await TvmClient.init({ ow: { namespace, auth } })
 **Returns**: [<code>Promise.&lt;TvmClient&gt;</code>](#TvmClient) - new instance  
 **Throws**:
 
-- <code>ERROR\_BAD\_ARGUMENT</code> 
+- <code>codes.ERROR\_BAD\_ARGUMENT</code> 
 
 
 | Param | Type | Description |
 | --- | --- | --- |
 | config | <code>object</code> | TvmClientParams |
 | [config.apiUrl] | <code>string</code> | url to tvm api - defaults to https://adobeio.adobeioruntime.net/apis/tvm |
-| [config.ow] | [<code>OpenWhiskCredentials</code>](#OpenWhiskCredentials) | Openwhisk credentials. As an alternative you can pass those through environment variables: `__OW_NAMESPACE` and `__OW_AUTH` |
+| [config.ow] | [<code>OpenWhiskCredentials</code>](#OpenWhiskCredentials) | Openwhisk credentials. As an alternative you can pass those through environment variables: `__OW_NAMESPACE` and `__OW_API_KEY` |
 | [config.cacheFile] | <code>string</code> | if omitted defaults to tmpdir/.tvmCache, use false or null to not cache |
 
 <a name="OpenWhiskCredentials"></a>
