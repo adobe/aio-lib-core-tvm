@@ -6,6 +6,7 @@ The following environment variables must be set:
 
 ```bash
 TEST_NAMESPACE_1, TEST_AUTH_1 (OpenWhisk namespace and auth)
+TEST_NAMESPACE_2, TEST_AUTH_2 (OpenWhisk namespace and auth)
 TVM_API_URL
 ```
 
@@ -20,9 +21,9 @@ Here is an overview of what is tested in [e2e.js](./e2e.js):
 - aws s3 e2e test:
   - get aws tokens from tvm using valid OpenWhisk auth and namespace
   - initialize s3 sdk
-  - list blobs in namespace subfolder
+  - list blobs in namespace bucket
   - `expect status=200`
-  - list blobs in other namespace subfolder
+  - list blobs in other namespace bucket
   - `expect errorCode = AccessDenied`
   - list buckets
   - `expect errorCode = AccessDenied`
