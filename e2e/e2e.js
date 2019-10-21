@@ -19,6 +19,8 @@ const testNamespace = process.env.TEST_NAMESPACE_1
 const testAuth = process.env.TEST_AUTH_1
 const apiUrl = process.env.TVM_API_URL.endsWith('/') ? process.env.TVM_API_URL : process.env.TVM_API_URL + '/'
 
+const testNamespaceHash = require('crypto').createHash('sha256').update(testNamespace, 'binary').digest('hex').slice(0, 32)
+
 const expectedAwsS3Response = {
   params: { Bucket: expect.any(String) },
   accessKeyId: expect.any(String),
@@ -80,20 +82,27 @@ afterEach(() => {
   delete process.env.__OW_API_KEY
 })
 
+// todo those are very similar to functional tests on tvm, try to modularize somehow
+// move those to tvm?
 describe('test e2e workflows', () => {
   test('aws s3 e2e test: get tvm credentials, list s3 blobs in namespace (success), list s3 blobs in other namespace (fail), list s3 buckets (fail)', async () => {
     const tvm = await initFromEnv()
     const tvmResponse = await tvm.getAwsS3Credentials()
     expect(tvmResponse).toEqual(expectedAwsS3Response)
 
+    // check that bucket name contains sha256 of namespace
+    expect(tvmResponse.params.Bucket).toEqual(expect.stringContaining(testNamespaceHash))
+
     const aws = require('aws-sdk')
     const s3 = new aws.S3(tvmResponse)
 
-    const res = await s3.listObjectsV2({ Prefix: testNamespace + '/' }).promise()
+    // todo more checks on policy operations?
+
+    const res = await s3.listObjectsV2().promise()
     expect(res.$response.httpResponse.statusCode).toEqual(200)
 
     try {
-      await s3.listObjectsV2({ Prefix: 'otherNsFolder' + '/' }).promise()
+      await s3.listObjectsV2({ Bucket: 'otherBucket' }).promise()
     } catch (e) {
       // keep message for more info
       expect({ code: e.code, message: e.message }).toEqual({ code: 'AccessDenied', message: e.message })
@@ -111,6 +120,10 @@ describe('test e2e workflows', () => {
     const tvm = await initFromEnv()
     const tvmResponse = await tvm.getAzureBlobCredentials()
     expect(tvmResponse).toEqual(expectedAzureBlobResponse)
+
+    // check that container names in sasURLs contain sha256 of namespace (especially important for public container)
+    expect(tvmResponse.sasURLPrivate).toEqual(expect.stringContaining(testNamespaceHash))
+    expect(tvmResponse.sasURLPublic).toEqual(expect.stringContaining(testNamespaceHash))
 
     const azure = require('@azure/storage-blob')
     const azureCreds = new azure.AnonymousCredential()
