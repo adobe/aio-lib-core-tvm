@@ -106,7 +106,7 @@ beforeEach(async () => {
   }
   setCacheKey('fakeCacheKey')
   cacheContent = JSON.stringify({ fakeCacheKey: fakeAzureTVMResponse })
-  delete process.env.__OW_AUTH
+  delete process.env.__OW_API_KEY
   delete process.env.__OW_NAMESPACE
 })
 
@@ -153,8 +153,8 @@ describe('init', () => {
     })
   })
   describe('pass ow through env', () => {
-    test('when passing auth in __OW_AUTH', async () => {
-      process.env.__OW_AUTH = fakeTVMInput.ow.auth
+    test('when passing auth in __OW_API_KEY', async () => {
+      process.env.__OW_API_KEY = fakeTVMInput.ow.auth
       delete fakeTVMInput.ow.auth
       const tvm = await TvmClient.init(fakeTVMInput)
       expect(tvm.apiUrl).toEqual(TvmClient.DefaultApiHost)
@@ -165,8 +165,8 @@ describe('init', () => {
       const tvm = await TvmClient.init(fakeTVMInput)
       expect(tvm.apiUrl).toEqual(TvmClient.DefaultApiHost)
     })
-    test('when passing both namespace and auth in __OW_NAMESPACE and __OW_AUTH', async () => {
-      process.env.__OW_AUTH = fakeTVMInput.ow.auth
+    test('when passing both namespace and auth in __OW_NAMESPACE and __OW_API_KEY', async () => {
+      process.env.__OW_API_KEY = fakeTVMInput.ow.auth
       process.env.__OW_NAMESPACE = fakeTVMInput.ow.namespace
       const tvm = await TvmClient.init()
       expect(tvm.apiUrl).toEqual(TvmClient.DefaultApiHost)

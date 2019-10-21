@@ -66,7 +66,7 @@ const expectBadArgument = async (promise) => {
 
 const initFromEnv = async () => {
   process.env.__OW_NAMESPACE = testNamespace
-  process.env.__OW_AUTH = testAuth
+  process.env.__OW_API_KEY = testAuth
 
   return TvmClient.init({ apiUrl })
 }
@@ -77,7 +77,7 @@ beforeEach(() => {
 
 afterEach(() => {
   delete process.env.__OW_NAMESPACE
-  delete process.env.__OW_AUTH
+  delete process.env.__OW_API_KEY
 })
 
 describe('test e2e workflows', () => {
@@ -180,7 +180,7 @@ describe('e2e errors', () => {
     })
     test('bad auth, good namespace', async () => {
       process.env.__OW_NAMESPACE = testNamespace
-      process.env.__OW_AUTH = 'BADAUTH'
+      process.env.__OW_API_KEY = 'BADAUTH'
       const tvm = await TvmClient.init({ apiUrl })
       await Promise.all(Object.values(functions).map(f => {
         return expectBadStatus(tvm[f](), 403)
@@ -188,7 +188,7 @@ describe('e2e errors', () => {
     })
     test('bad namespace, good auth', async () => {
       process.env.__OW_NAMESPACE = 'badns'
-      process.env.__OW_AUTH = testAuth
+      process.env.__OW_API_KEY = testAuth
       const tvm = await TvmClient.init({ apiUrl })
       await Promise.all(Object.values(functions).map(f => {
         return expectBadStatus(tvm[f](), 403)
