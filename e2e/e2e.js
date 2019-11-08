@@ -14,11 +14,9 @@ const TvmClient = require('../')
 
 jest.setTimeout(60000)
 
-// config - THOSE ARE THE REQUIRED VARS + need
+// config - THOSE ARE THE REQUIRED VARS
 const testNamespace = process.env.TEST_NAMESPACE_1
 const testAuth = process.env.TEST_AUTH_1
-// const testNamespace2 = process.env.TEST_NAMESPACE_2
-// const testAuth2 = process.env.TEST_AUTH_2
 const apiUrl = process.env.TVM_API_URL.endsWith('/') ? process.env.TVM_API_URL : process.env.TVM_API_URL + '/'
 
 const testNamespaceHash = require('crypto').createHash('sha256').update(testNamespace, 'binary').digest('hex').slice(0, 32)
@@ -68,6 +66,7 @@ const expectBadArgument = async (promise) => {
   }
 }
 
+// only one ns needed for now
 const initFromEnv = async (n = 1) => {
   process.env.__OW_NAMESPACE = process.env[`TEST_NAMESPACE_${n}`]
   process.env.__OW_API_KEY = process.env[`TEST_AUTH_${n}`]
@@ -92,33 +91,28 @@ describe('test e2e workflows', () => {
     const tvmResponse = await tvm.getAwsS3Credentials()
     expect(tvmResponse).toEqual(expectedAwsS3Response)
 
-    const tvm2 = await initFromEnv(2)
-    const tvmResponse2 = await tvm2.getAwsS3Credentials()
-    expect(tvmResponse2).toEqual(expectedAwsS3Response)
-
-    // check that bucket name contains sha256 of namespace
-    expect(tvmResponse.params.Bucket).toEqual(expect.stringContaining(testNamespaceHash))
-
     const aws = require('aws-sdk')
     const s3 = new aws.S3(tvmResponse)
 
-    // todo more checks on policy operations?
+    // todo more checks on policy operations (e.g. read, write, acl, ..)
 
-    const res = await s3.listObjectsV2().promise()
+    // success listing own resources
+    const res = await s3.listObjectsV2({ Prefix: testNamespace + '/' }).promise()
     expect(res.$response.httpResponse.statusCode).toEqual(200)
 
-    // make sure ns 1 cannot access bucket 2
+    // fail listing other folder
+    // todo restore this, because of CF integration, list & get within bucket is public operation now
     let err
-    try {
-      // try to access fake bucket
-      await s3.listObjectsV2({ Bucket: tvmResponse2.params.Bucket }).promise()
-    } catch (e) {
-      err = e
-      // keep message for more info
-      expect({ code: e.code, message: e.message }).toEqual({ code: 'AccessDenied', message: e.message })
-    }
-    expect(err).toBeInstanceOf(Error)
+    // try {
+    //   await s3.listObjectsV2({ Prefix: 'otherNsFolder' + '/' }).promise()
+    // } catch (e) {
+    //   err = e
+    //   // keep message for more info
+    //   expect({ code: e.code, message: e.message }).toEqual({ code: 'AccessDenied', message: e.message })
+    // }
+    // expect(err).toBeInstanceOf(Error)
 
+    // fail listing buckets
     err = undefined
     try {
       await s3.listBuckets().promise()
