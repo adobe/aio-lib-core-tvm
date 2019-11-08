@@ -6,7 +6,6 @@ The following environment variables must be set:
 
 ```bash
 TEST_NAMESPACE_1, TEST_AUTH_1 (OpenWhisk namespace and auth)
-TEST_NAMESPACE_2, TEST_AUTH_2 (OpenWhisk namespace and auth)
 TVM_API_URL
 ```
 
