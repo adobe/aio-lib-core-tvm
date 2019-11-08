@@ -101,15 +101,16 @@ describe('test e2e workflows', () => {
     expect(res.$response.httpResponse.statusCode).toEqual(200)
 
     // fail listing other folder
+    // todo restore this, because of CF integration, list & get within bucket is public operation now
     let err
-    try {
-      await s3.listObjectsV2({ Prefix: 'otherNsFolder' + '/' }).promise()
-    } catch (e) {
-      err = e
-      // keep message for more info
-      expect({ code: e.code, message: e.message }).toEqual({ code: 'AccessDenied', message: e.message })
-    }
-    expect(err).toBeInstanceOf(Error)
+    // try {
+    //   await s3.listObjectsV2({ Prefix: 'otherNsFolder' + '/' }).promise()
+    // } catch (e) {
+    //   err = e
+    //   // keep message for more info
+    //   expect({ code: e.code, message: e.message }).toEqual({ code: 'AccessDenied', message: e.message })
+    // }
+    // expect(err).toBeInstanceOf(Error)
 
     // fail listing buckets
     err = undefined
