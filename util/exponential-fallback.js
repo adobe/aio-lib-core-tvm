@@ -15,10 +15,20 @@ const MAX_RETRIES = 5;
 const MAX_WAIT_INTERVAL_MS = 1 * 60 * 1000; // 1 minute in milliseconds
 const RETRY_COUNT_MULTIPLIER_MS = 100;
 
-let fetch = require('node-fetch').default;
-let util = require('util');
+const logger = require('@adobe/aio-lib-core-logging')('@adobe/aio-lib-core-tvm', { provider: 'debug' })
+const fetch = require('node-fetch').default;
+const util = require('util');
 
-function exponentialFallback(url, options={}, retryCount) {
+/**
+ * This function will retry connecting to a url end-point, with
+ * exponential fallback. Returns a Promise.
+ * 
+ * @param {string} url endpoint url
+ * @param {object} options request options
+ * @param {number} retryCount retry count
+ * @returns {Promise} Promise object representing the http response
+ */
+function exponentialFallback(url, options={}, retryCount, err) {
     retryCount = retryCount || 0;
 
     // simple: return a Promise that waits exponentially
@@ -26,16 +36,18 @@ function exponentialFallback(url, options={}, retryCount) {
     return new Promise((resolve, reject) => {
 
         if (retryCount > MAX_RETRIES) {
-            return reject(util.format('Maximum number of retries (%s) reached for %s', MAX_RETRIES, JSON.stringify(urlOrOptions)));
+            logger.debug(util.format('Maximum number of retries (%s) reached for %s', MAX_RETRIES, JSON.stringify(url)))
+            return reject(err);
         }
 
         const timeout = Math.pow(2, retryCount) * RETRY_COUNT_MULTIPLIER_MS;
         if (timeout >= MAX_WAIT_INTERVAL_MS) {
-            return reject(util.format('Maximum wait interval of %s milliseconds reached for %s', MAX_WAIT_INTERVAL_MS, JSON.stringify(urlOrOptions)));
+            logger.debug(util.format('Maximum wait interval of %s milliseconds reached for %s', MAX_WAIT_INTERVAL_MS, JSON.stringify(url)))
+            return reject(err);
         }
 
         setTimeout(() => {
-          // console.log('Waiting %s ms (retryCount %s)', timeout, retryCount);
+          logger.debug(`Waiting ${timeout} ms (retryCount ${retryCount})`);
           exponentialFallbackHelper(url, options, retryCount)
             .then(resolve)
             .catch(reject)
@@ -47,8 +59,8 @@ function exponentialFallbackHelper(url, options, retryCount) {
     retryCount = retryCount || 0;
 
     return fetch(url, options).catch((err) => {
-        console.log('Error (%s) - retry number %s', err.message, retryCount);
-        return exponentialFallback(url, options, ++retryCount)
+        logger.debug(`Error (${err.message}) - retry number ${retryCount}`);
+        return exponentialFallback(url, options, ++retryCount, err)
     });
 }
 
