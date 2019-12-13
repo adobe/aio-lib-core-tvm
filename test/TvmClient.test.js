@@ -68,6 +68,7 @@ const setCacheKey = (input) => crypto.createHash.mockReturnValue({
 beforeEach(async () => {
   expect.hasAssertions()
   jest.resetAllMocks()
+  jest.setTimeout(5000)
   fs.readFile.mockReset()
   fs.writeFile.mockReset()
 
@@ -195,12 +196,26 @@ describe('getAzureBlobCredentials', () => {
       expect(fs.writeFile).toHaveBeenCalledTimes(0)
       expect(mockLogDebug).toHaveBeenCalledWith(expect.stringContaining(fetchTvmLog))
     })
-    test('when tvm response has a server error', async () => {
+    test('when tvm response has a client error', async () => {
+      // fake the fetch to the TVM
+      fetch.mockResolvedValue(wrapInFetchError(400))
+      fakeTVMInput.cacheFile = false
+      const tvmClient = await TvmClient.init(fakeTVMInput)
+      await expect(tvmClient.getAzureBlobCredentials.bind(tvmClient)).toThrowStatusError(400)
+      expect(fs.readFile).toHaveBeenCalledTimes(0)
+      expect(fs.writeFile).toHaveBeenCalledTimes(0)
+      expect(mockLogError).toHaveBeenCalledWith(expect.stringContaining(fakeTVMInput.ow.namespace))
+      expect(mockLogError).toHaveBeenCalledWith(expect.not.stringContaining(fakeTVMInput.ow.auth))
+    })
+    test('when tvm response has a server error with longer timeout', async () => {
+      jest.setTimeout(30000)
       // fake the fetch to the TVM
       fetch.mockResolvedValue(wrapInFetchError(500))
       fakeTVMInput.cacheFile = false
+      const start = new Date()
       const tvmClient = await TvmClient.init(fakeTVMInput)
       await expect(tvmClient.getAzureBlobCredentials.bind(tvmClient)).toThrowStatusError(500)
+      expect(new Date() - start).toBeGreaterThan(5000)
       expect(fs.readFile).toHaveBeenCalledTimes(0)
       expect(fs.writeFile).toHaveBeenCalledTimes(0)
       expect(mockLogError).toHaveBeenCalledWith(expect.stringContaining(fakeTVMInput.ow.namespace))

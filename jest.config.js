@@ -18,6 +18,7 @@ module.exports = {
   collectCoverage: true,
   collectCoverageFrom: [
     'index.js',
-    'lib/**/*.js'
+    'lib/**/*.js',
+    'util/**/*.js'
   ]
 }

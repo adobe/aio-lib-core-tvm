@@ -10,63 +10,65 @@ OF ANY KIND, either express or implied. See the License for the specific languag
 governing permissions and limitations under the License.
 */
 
-"use strict";
-const MAX_RETRIES = 5;
-const MAX_WAIT_INTERVAL_MS = 1 * 60 * 1000; // 1 minute in milliseconds
-const RETRY_COUNT_MULTIPLIER_MS = 100;
+const MAX_RETRIES = 5
+const MAX_WAIT_INTERVAL_MS = 1 * 60 * 1000 // 1 minute in milliseconds
+const RETRY_COUNT_MULTIPLIER_MS = 100
 
 const logger = require('@adobe/aio-lib-core-logging')('@adobe/aio-lib-core-tvm', { provider: 'debug' })
-const fetch = require('node-fetch').default;
-const util = require('util');
+const fetch = require('node-fetch').default
+const util = require('util')
+const sleep = util.promisify(setTimeout)
 
 /**
  * This function will retry connecting to a url end-point, with
- * exponential fallback. Returns a Promise.
- * 
+exponential fallback. Returns a Promise.
+ *
  * @param {string} url endpoint url
  * @param {object} options request options
  * @param {number} retryCount retry count
+ * @param {object} err error response
  * @returns {Promise} Promise object representing the http response
  */
-function exponentialFallback(url, options={}, retryCount, err) {
-    retryCount = retryCount || 0;
+async function exponentialFallback (url, options, retryCount, err) {
+  retryCount = retryCount || 0
 
-    // simple: return a Promise that waits exponentially
-    // for retryCount = 0, you would wait 100 ms (2^0 * 100 = 100), relatively immediate
-    return new Promise((resolve, reject) => {
+  // simple: return a Promise that waits exponentially
+  // for retryCount = 0, you would wait 100 ms (2^0 * 100 = 100), relatively immediate
 
-        if (retryCount > MAX_RETRIES) {
-            logger.debug(util.format('Maximum number of retries (%s) reached for %s', MAX_RETRIES, JSON.stringify(url)))
-            return reject(err);
-        }
+  if (retryCount > MAX_RETRIES) {
+    logger.debug(util.format('Maximum number of retries (%s) reached for %s', MAX_RETRIES, JSON.stringify(url)))
+    return err
+  }
 
-        const timeout = Math.pow(2, retryCount) * RETRY_COUNT_MULTIPLIER_MS;
-        if (timeout >= MAX_WAIT_INTERVAL_MS) {
-            logger.debug(util.format('Maximum wait interval of %s milliseconds reached for %s', MAX_WAIT_INTERVAL_MS, JSON.stringify(url)))
-            return reject(err);
-        }
-
-        setTimeout(() => {
-          logger.debug(`Waiting ${timeout} ms (retryCount ${retryCount})`);
-          exponentialFallbackHelper(url, options, retryCount)
-            .then(resolve)
-            .catch(reject)
-        }, timeout)
-    });
+  const timeout = Math.pow(2, retryCount) * RETRY_COUNT_MULTIPLIER_MS
+  logger.debug(`Waiting ${timeout} ms (retryCount ${retryCount})`)
+  await sleep(timeout)
+  return _exponentialFallbackHelper(url, options, retryCount)
 }
 
-function exponentialFallbackHelper(url, options, retryCount) {
-    retryCount = retryCount || 0;
+/**
+ * Helper function
+ *
+ * @param {string} url endpoint url
+ * @param {object} options request options
+ * @param {number} retryCount retry count
+ * @returns {object} http response
+ * @private
+ */
+async function _exponentialFallbackHelper (url, options, retryCount) {
+  retryCount = retryCount || 0
 
-    return fetch(url, options).catch((err) => {
-        logger.debug(`Error (${err.message}) - retry number ${retryCount}`);
-        return exponentialFallback(url, options, ++retryCount, err)
-    });
+  const response = await fetch(url, options)
+  if (response.ok || (response.status < 500 || response.status > 599)) {
+    return response
+  }
+  logger.debug(`Error response with status (${response.status}) - retry number ${retryCount}`)
+  return exponentialFallback(url, options, ++retryCount, response)
 }
 
 module.exports = {
-    exponentialFallback : exponentialFallback,
-    MAX_RETRIES: MAX_RETRIES,
-    MAX_WAIT_INTERVAL_MS: MAX_WAIT_INTERVAL_MS,
-    RETRY_COUNT_MULTIPLIER_MS: RETRY_COUNT_MULTIPLIER_MS
-};
+  exponentialFallback: exponentialFallback,
+  MAX_RETRIES: MAX_RETRIES,
+  MAX_WAIT_INTERVAL_MS: MAX_WAIT_INTERVAL_MS,
+  RETRY_COUNT_MULTIPLIER_MS: RETRY_COUNT_MULTIPLIER_MS
+}
