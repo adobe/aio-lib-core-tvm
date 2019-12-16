@@ -215,7 +215,7 @@ describe('getAzureBlobCredentials', () => {
       const start = new Date()
       const tvmClient = await TvmClient.init(fakeTVMInput)
       await expect(tvmClient.getAzureBlobCredentials.bind(tvmClient)).toThrowStatusError(500)
-      expect(new Date() - start).toBeGreaterThan(5000)
+      expect(new Date() - start).toBeGreaterThan(3000)
       expect(fs.readFile).toHaveBeenCalledTimes(0)
       expect(fs.writeFile).toHaveBeenCalledTimes(0)
       expect(mockLogError).toHaveBeenCalledWith(expect.stringContaining(fakeTVMInput.ow.namespace))
