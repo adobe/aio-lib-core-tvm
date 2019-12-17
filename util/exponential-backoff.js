@@ -25,16 +25,15 @@ exponential backoff. Returns a Promise.
  *
  * @param {string} url endpoint url
  * @param {object} requestOptions request options
- * @param {object} retryOptions retry options with keys being maxRetries, retryMultipler and retryCount
+ * @param {object} retryOptions retry options with keys being maxRetries and retryMultipler
  * @returns {Promise} Promise object representing the http response
  */
 async function exponentialBackoff (url, requestOptions, retryOptions) {
   const {
     maxRetries = DEFAULT_MAX_RETRIES,
-    retryMultiplier = DEFAULY_RETRY_MULTIPLIER_MS,
-    retryCount = DEFAULT_RETRY_COUNT
-  } = retryOptions || {}
-  return _exponentialBackoffHelper(url, requestOptions, { maxRetries, retryMultiplier, retryCount })
+    retryMultiplier = DEFAULY_RETRY_MULTIPLIER_MS
+  } = retryOptions
+  return _exponentialBackoffHelper(url, requestOptions, { maxRetries, retryMultiplier })
 }
 
 /**
@@ -47,7 +46,7 @@ async function exponentialBackoff (url, requestOptions, retryOptions) {
  * @private
  */
 async function _exponentialBackoffHelper (url, requestOptions, retryOptions) {
-  const { maxRetries, retryMultiplier, retryCount } = retryOptions
+  const { maxRetries, retryMultiplier, retryCount = DEFAULT_RETRY_COUNT } = retryOptions
 
   const response = await fetch(url, requestOptions)
   if (response.ok || (response.status < 500 || response.status > 599)) {
@@ -64,7 +63,7 @@ async function _exponentialBackoffHelper (url, requestOptions, retryOptions) {
   logger.debug(`Waiting ${timeout} ms (retryCount ${retryCount + 1})`)
   await sleep(timeout)
 
-  retryOptions.retryCount++
+  retryOptions.retryCount = retryCount + 1
   return _exponentialBackoffHelper(url, requestOptions, retryOptions)
 }
 
