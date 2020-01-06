@@ -21,6 +21,8 @@ For more details on the server side, `goto` [adobe/aio-tvm](https://github.com/a
 const TvmClient = require('@adobe/aio-lib-core-tvm')
 // init
 const tvm = await TvmClient.init({ ow: { auth: '<myauth>', namespace: '<mynamespace>' } })
+// init with retryOptions
+const tvm = await TvmClient.init({ ow: { auth: '<myauth>', namespace: '<mynamespace>' }, retryOptions: { maxRetries: 5, retryMultiplier: 100} })
 
 // aws s3
 const awsS3Credentials = await tvm.getAwsS3Credentials()
