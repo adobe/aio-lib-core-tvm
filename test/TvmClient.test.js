@@ -84,7 +84,7 @@ beforeEach(async () => {
       auth: 'fakeauth'
     }
   }
-  TvmClient[TvmClient.CredsCacheVar] = null
+  TvmClient.inMemoryCache = null
   fakeAzureTVMResponse = {
     expiration: maxDate,
     sasURLPrivate: 'https://fake.com',
@@ -380,7 +380,7 @@ describe('with in memory caching', () => {
     let creds = await tvmClient.getAwsS3Credentials()
     expect(creds).toEqual({ ...fakeAwsS3Response })
 
-    TvmClient[TvmClient.CredsCacheVar].fakeCacheKey.returnedFrom = 'var'
+    TvmClient.inMemoryCache.fakeCacheKey.returnedFrom = 'var'
     creds = await tvmClient.getAwsS3Credentials()
     expect(creds).toEqual({ ...fakeAwsS3Response, returnedFrom: 'var' })
     expect(mockLogDebug).toHaveBeenCalledWith(expect.stringContaining(readCacheLog))
@@ -392,10 +392,10 @@ describe('with in memory caching', () => {
     fakeTVMInput.cacheFile = false
     const tvmClient = await TvmClient.init(fakeTVMInput)
 
-    TvmClient[TvmClient.CredsCacheVar] = { otherCacheKey: fakeAwsS3Response }
+    TvmClient.inMemoryCache = { otherCacheKey: fakeAwsS3Response }
     const creds = await tvmClient.getAwsS3Credentials()
     expect(creds).toEqual({ ...fakeAwsS3Response })
-    expect(TvmClient[TvmClient.CredsCacheVar]).toEqual({ otherCacheKey: fakeAwsS3Response, fakeCacheKey: fakeAwsS3Response })
+    expect(TvmClient.inMemoryCache).toEqual({ otherCacheKey: fakeAwsS3Response, fakeCacheKey: fakeAwsS3Response })
   })
 
   test('when creds have expired', async () => {
@@ -404,9 +404,9 @@ describe('with in memory caching', () => {
     fakeTVMInput.cacheFile = false
     const tvmClient = await TvmClient.init(fakeTVMInput)
 
-    TvmClient[TvmClient.CredsCacheVar] = { fakeCacheKey: fakeAwsS3Response }
-    TvmClient[TvmClient.CredsCacheVar].fakeCacheKey.expiration = new Date().toISOString()
-    TvmClient[TvmClient.CredsCacheVar].fakeCacheKey.returnedFrom = 'var'
+    TvmClient.inMemoryCache = { fakeCacheKey: fakeAwsS3Response }
+    TvmClient.inMemoryCache.fakeCacheKey.expiration = new Date().toISOString()
+    TvmClient.inMemoryCache.fakeCacheKey.returnedFrom = 'var'
 
     const creds = await tvmClient.getAwsS3Credentials()
     expect(creds).toEqual({ ...fakeAwsS3Response })
