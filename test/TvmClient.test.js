@@ -84,7 +84,7 @@ beforeEach(async () => {
       auth: 'fakeauth'
     }
   }
-
+  TvmClient.inMemoryCache = null
   fakeAzureTVMResponse = {
     expiration: maxDate,
     sasURLPrivate: 'https://fake.com',
@@ -363,5 +363,55 @@ describe('getAzureCosmosCredentials', () => {
     expect(creds).toEqual(fakeAzureCosmosResponse)
     expect(fetch.mock.calls[0][0]).toEqual(TvmClient.DefaultApiHost + '/' + TvmClient.AzureCosmosEndpoint + '/' + fakeTVMInput.ow.namespace)
     expect(fetch.mock.calls[0][1].headers).toEqual(expect.objectContaining({ Authorization: fakeTVMInput.ow.auth }))
+  })
+})
+
+describe('with in memory caching', () => {
+  const readCacheLog = 'read credentials from cache with key'
+  const writeCacheLog = 'wrote credentials to cache with key'
+  const fetchTvmLog = 'fetched credentials from tvm'
+  const expiredCacheLog = 'expired'
+  // the general tests are same, we test just that the method is defined
+  test('with cacheFile set to false', async () => {
+    // fake the fetch to the TVM
+    fetch.mockResolvedValue(wrapInFetchResponse(fakeAwsS3Response))
+    fakeTVMInput.cacheFile = false
+    const tvmClient = await TvmClient.init(fakeTVMInput)
+    let creds = await tvmClient.getAwsS3Credentials()
+    expect(creds).toEqual({ ...fakeAwsS3Response })
+
+    TvmClient.inMemoryCache.fakeCacheKey.returnedFrom = 'var'
+    creds = await tvmClient.getAwsS3Credentials()
+    expect(creds).toEqual({ ...fakeAwsS3Response, returnedFrom: 'var' })
+    expect(mockLogDebug).toHaveBeenCalledWith(expect.stringContaining(readCacheLog))
+  })
+
+  test('when other cachekey exists', async () => {
+    // fake the fetch to the TVM
+    fetch.mockResolvedValue(wrapInFetchResponse(fakeAwsS3Response))
+    fakeTVMInput.cacheFile = false
+    const tvmClient = await TvmClient.init(fakeTVMInput)
+
+    TvmClient.inMemoryCache = { otherCacheKey: fakeAwsS3Response }
+    const creds = await tvmClient.getAwsS3Credentials()
+    expect(creds).toEqual({ ...fakeAwsS3Response })
+    expect(TvmClient.inMemoryCache).toEqual({ otherCacheKey: fakeAwsS3Response, fakeCacheKey: fakeAwsS3Response })
+  })
+
+  test('when creds have expired', async () => {
+    // fake the fetch to the TVM
+    fetch.mockResolvedValue(wrapInFetchResponse(fakeAwsS3Response))
+    fakeTVMInput.cacheFile = false
+    const tvmClient = await TvmClient.init(fakeTVMInput)
+
+    TvmClient.inMemoryCache = { fakeCacheKey: fakeAwsS3Response }
+    TvmClient.inMemoryCache.fakeCacheKey.expiration = new Date().toISOString()
+    TvmClient.inMemoryCache.fakeCacheKey.returnedFrom = 'var'
+
+    const creds = await tvmClient.getAwsS3Credentials()
+    expect(creds).toEqual({ ...fakeAwsS3Response })
+    expect(mockLogDebug).toHaveBeenCalledWith(expect.stringContaining(expiredCacheLog))
+    expect(mockLogDebug).toHaveBeenCalledWith(expect.stringContaining(fetchTvmLog))
+    expect(mockLogDebug).toHaveBeenCalledWith(expect.stringContaining(writeCacheLog))
   })
 })
