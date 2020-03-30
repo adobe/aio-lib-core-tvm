@@ -207,53 +207,51 @@ describe('getAzureBlobCredentials', () => {
       expect(mockLogError).toHaveBeenCalledWith(expect.stringContaining(fakeTVMInput.ow.namespace))
       expect(mockLogError).toHaveBeenCalledWith(expect.not.stringContaining(fakeTVMInput.ow.auth))
     })
-    test('when tvm response has a server error with longer timeout', async () => {
-      jest.setTimeout(30000)
+    test('when tvm response has a server error with default maxRetries and initialDelayInMillis', async () => {
       // fake the fetch to the TVM
       fetch.mockResolvedValue(wrapInFetchError(500))
       fakeTVMInput.cacheFile = false
       const start = new Date()
       const tvmClient = await TvmClient.init(fakeTVMInput)
       await expect(tvmClient.getAzureBlobCredentials.bind(tvmClient)).toThrowStatusError(500)
-      expect(new Date() - start).toBeGreaterThan(3000)
+      // Retry delays would be 100 + 200 + 400 = 700
+      expect(new Date() - start).toBeGreaterThan(690)
       expect(fs.readFile).toHaveBeenCalledTimes(0)
       expect(fs.writeFile).toHaveBeenCalledTimes(0)
       expect(mockLogError).toHaveBeenCalledWith(expect.stringContaining(fakeTVMInput.ow.namespace))
       expect(mockLogError).toHaveBeenCalledWith(expect.not.stringContaining(fakeTVMInput.ow.auth))
     })
-    test('when tvm response has a server error with 3 maxRetries', async () => {
-      jest.setTimeout(30000)
+    test('when tvm response has a server error with 2 maxRetries', async () => {
       // fake the fetch to the TVM
       fetch.mockResolvedValue(wrapInFetchError(500))
       fakeTVMInput.cacheFile = false
       const start = new Date()
       const customInput = fakeTVMInput
-      customInput.retryOptions = { maxRetries: 3 }
+      customInput.retryOptions = { maxRetries: 2 }
       const tvmClient = await TvmClient.init(customInput)
       await expect(tvmClient.getAzureBlobCredentials.bind(tvmClient)).toThrowStatusError(500)
       const end = new Date() - start
-      // Retry delays would be 100 + 200 + 400 = 700
-      expect(end).toBeGreaterThan(500)
-      expect(end).toBeLessThan(3000)
+      // Retry delays would be 100 + 200 = 300
+      expect(end).toBeGreaterThan(290)
+      expect(end).toBeLessThan(500)
       expect(fs.readFile).toHaveBeenCalledTimes(0)
       expect(fs.writeFile).toHaveBeenCalledTimes(0)
       expect(mockLogError).toHaveBeenCalledWith(expect.stringContaining(fakeTVMInput.ow.namespace))
       expect(mockLogError).toHaveBeenCalledWith(expect.not.stringContaining(fakeTVMInput.ow.auth))
     })
     test('when tvm response has a server error with 50ms retryMultiplier', async () => {
-      jest.setTimeout(30000)
       // fake the fetch to the TVM
       fetch.mockResolvedValue(wrapInFetchError(500))
       fakeTVMInput.cacheFile = false
       const start = new Date()
       const customInput = fakeTVMInput
-      customInput.retryOptions = { retryMultiplier: 50 }
+      customInput.retryOptions = { initialDelayInMillis: 50 }
       const tvmClient = await TvmClient.init(customInput)
       await expect(tvmClient.getAzureBlobCredentials.bind(tvmClient)).toThrowStatusError(500)
       const end = new Date() - start
-      // Retry delays would be 50 + 100 + 200 + 400 + 800 = 1550
-      expect(end).toBeGreaterThan(1500)
-      expect(end).toBeLessThan(3000)
+      // Retry delays would be 50 + 100 + 200 = 350
+      expect(end).toBeGreaterThan(340)
+      expect(end).toBeLessThan(500)
       expect(fs.readFile).toHaveBeenCalledTimes(0)
       expect(fs.writeFile).toHaveBeenCalledTimes(0)
       expect(mockLogError).toHaveBeenCalledWith(expect.stringContaining(fakeTVMInput.ow.namespace))
