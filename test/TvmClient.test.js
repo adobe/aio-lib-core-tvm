@@ -233,7 +233,6 @@ describe('getAzureBlobCredentials', () => {
       const end = new Date() - start
       // Retry delays would be 100 + 200 = 300
       expect(end).toBeGreaterThan(290)
-      expect(end).toBeLessThan(500)
       expect(fs.readFile).toHaveBeenCalledTimes(0)
       expect(fs.writeFile).toHaveBeenCalledTimes(0)
       expect(mockLogError).toHaveBeenCalledWith(expect.stringContaining(fakeTVMInput.ow.namespace))
@@ -251,7 +250,6 @@ describe('getAzureBlobCredentials', () => {
       const end = new Date() - start
       // Retry delays would be 50 + 100 + 200 = 350
       expect(end).toBeGreaterThan(340)
-      expect(end).toBeLessThan(500)
       expect(fs.readFile).toHaveBeenCalledTimes(0)
       expect(fs.writeFile).toHaveBeenCalledTimes(0)
       expect(mockLogError).toHaveBeenCalledWith(expect.stringContaining(fakeTVMInput.ow.namespace))
