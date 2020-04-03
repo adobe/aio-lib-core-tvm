@@ -21,6 +21,8 @@ jest.mock('node-fetch')
 const crypto = require('crypto')
 jest.mock('crypto')
 
+const networkingLib = require('@adobe/aio-lib-core-networking')
+
 const mockLogDebug = jest.fn()
 const mockLogError = jest.fn()
 jest.doMock('@adobe/aio-lib-core-logging', function () {
@@ -208,52 +210,50 @@ describe('getAzureBlobCredentials', () => {
       expect(mockLogError).toHaveBeenCalledWith(expect.not.stringContaining(fakeTVMInput.ow.auth))
     })
     test('when tvm response has a server error with default maxRetries and initialDelayInMillis', async () => {
-      // fake the fetch to the TVM
-      fetch.mockResolvedValue(wrapInFetchError(500))
+      const originalFunc = networkingLib.exponentialBackoff
+      networkingLib.exponentialBackoff = jest.fn().mockResolvedValue(wrapInFetchError(500))
       fakeTVMInput.cacheFile = false
-      const start = new Date()
       const tvmClient = await TvmClient.init(fakeTVMInput)
       await expect(tvmClient.getAzureBlobCredentials.bind(tvmClient)).toThrowStatusError(500)
-      // Retry delays would be 100 + 200 + 400 = 700
-      expect(new Date() - start).toBeGreaterThan(690)
+      expect(networkingLib.exponentialBackoff).toHaveBeenCalledTimes(1)
+      expect(networkingLib.exponentialBackoff).toHaveBeenCalledWith(TvmClient.DefaultApiHost + '/' + TvmClient.AzureBlobEndpoint + '/' + fakeTVMInput.ow.namespace, expect.objectContaining({ headers: { Authorization: 'fakeauth' } }), {})
       expect(fs.readFile).toHaveBeenCalledTimes(0)
       expect(fs.writeFile).toHaveBeenCalledTimes(0)
       expect(mockLogError).toHaveBeenCalledWith(expect.stringContaining(fakeTVMInput.ow.namespace))
       expect(mockLogError).toHaveBeenCalledWith(expect.not.stringContaining(fakeTVMInput.ow.auth))
+      networkingLib.exponentialBackoff = originalFunc
     })
     test('when tvm response has a server error with 2 maxRetries', async () => {
-      // fake the fetch to the TVM
-      fetch.mockResolvedValue(wrapInFetchError(500))
+      const originalFunc = networkingLib.exponentialBackoff
+      networkingLib.exponentialBackoff = jest.fn().mockResolvedValue(wrapInFetchError(500))
       fakeTVMInput.cacheFile = false
-      const start = new Date()
       const customInput = fakeTVMInput
       customInput.retryOptions = { maxRetries: 2 }
       const tvmClient = await TvmClient.init(customInput)
       await expect(tvmClient.getAzureBlobCredentials.bind(tvmClient)).toThrowStatusError(500)
-      const end = new Date() - start
-      // Retry delays would be 100 + 200 = 300
-      expect(end).toBeGreaterThan(290)
+      expect(networkingLib.exponentialBackoff).toHaveBeenCalledTimes(1)
+      expect(networkingLib.exponentialBackoff).toHaveBeenCalledWith(TvmClient.DefaultApiHost + '/' + TvmClient.AzureBlobEndpoint + '/' + fakeTVMInput.ow.namespace, expect.objectContaining({ headers: { Authorization: 'fakeauth' } }), { maxRetries: 2 })
       expect(fs.readFile).toHaveBeenCalledTimes(0)
       expect(fs.writeFile).toHaveBeenCalledTimes(0)
       expect(mockLogError).toHaveBeenCalledWith(expect.stringContaining(fakeTVMInput.ow.namespace))
       expect(mockLogError).toHaveBeenCalledWith(expect.not.stringContaining(fakeTVMInput.ow.auth))
+      networkingLib.exponentialBackoff = originalFunc
     })
     test('when tvm response has a server error with 50ms retryMultiplier', async () => {
-      // fake the fetch to the TVM
-      fetch.mockResolvedValue(wrapInFetchError(500))
+      const originalFunc = networkingLib.exponentialBackoff
+      networkingLib.exponentialBackoff = jest.fn().mockResolvedValue(wrapInFetchError(500))
       fakeTVMInput.cacheFile = false
-      const start = new Date()
       const customInput = fakeTVMInput
       customInput.retryOptions = { initialDelayInMillis: 50 }
       const tvmClient = await TvmClient.init(customInput)
       await expect(tvmClient.getAzureBlobCredentials.bind(tvmClient)).toThrowStatusError(500)
-      const end = new Date() - start
-      // Retry delays would be 50 + 100 + 200 = 350
-      expect(end).toBeGreaterThan(340)
+      expect(networkingLib.exponentialBackoff).toHaveBeenCalledTimes(1)
+      expect(networkingLib.exponentialBackoff).toHaveBeenCalledWith(TvmClient.DefaultApiHost + '/' + TvmClient.AzureBlobEndpoint + '/' + fakeTVMInput.ow.namespace, expect.objectContaining({ headers: { Authorization: 'fakeauth' } }), { initialDelayInMillis: 50 })
       expect(fs.readFile).toHaveBeenCalledTimes(0)
       expect(fs.writeFile).toHaveBeenCalledTimes(0)
       expect(mockLogError).toHaveBeenCalledWith(expect.stringContaining(fakeTVMInput.ow.namespace))
       expect(mockLogError).toHaveBeenCalledWith(expect.not.stringContaining(fakeTVMInput.ow.auth))
+      networkingLib.exponentialBackoff = originalFunc
     })
     test('when tvm fetch is unauthorized', async () => {
       // fake the fetch to the TVM
