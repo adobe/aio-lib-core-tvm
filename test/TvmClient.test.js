@@ -196,6 +196,14 @@ describe('getAzureBlobCredentials', () => {
       expect(fs.writeFile).toHaveBeenCalledTimes(0)
       expect(mockLogDebug).toHaveBeenCalledWith(expect.stringContaining(fetchTvmLog))
     })
+    test('when tvm response is valid, sets the X-OW-EXTRA-LOGGING header', async () => {
+      // fake the fetch to the TVM
+      fetch.mockResolvedValue(wrapInFetchResponse(fakeAzureTVMResponse))
+      fakeTVMInput.cacheFile = false
+      const tvmClient = await TvmClient.init(fakeTVMInput)
+      await tvmClient.getAzureBlobCredentials()
+      expect(fetch.mock.calls[0][1].headers).toEqual(expect.objectContaining({ 'X-OW-EXTRA-LOGGING': 'on' }))
+    })
     test('when tvm response has a client error', async () => {
       // fake the fetch to the TVM
       fetch.mockResolvedValue(wrapInFetchError(400))
@@ -349,6 +357,7 @@ describe('getAwsS3Credentials', () => {
     expect(creds).toEqual(fakeAwsS3Response)
     expect(fetch.mock.calls[0][0]).toEqual(TvmClient.DefaultApiHost + '/' + TvmClient.AwsS3Endpoint + '/' + fakeTVMInput.ow.namespace)
     expect(fetch.mock.calls[0][1].headers).toEqual(expect.objectContaining({ Authorization: fakeTVMInput.ow.auth }))
+    expect(fetch.mock.calls[0][1].headers).toEqual(expect.objectContaining({ 'X-OW-EXTRA-LOGGING': 'on' }))
   })
 })
 
@@ -363,6 +372,7 @@ describe('getAzureCosmosCredentials', () => {
     expect(creds).toEqual(fakeAzureCosmosResponse)
     expect(fetch.mock.calls[0][0]).toEqual(TvmClient.DefaultApiHost + '/' + TvmClient.AzureCosmosEndpoint + '/' + fakeTVMInput.ow.namespace)
     expect(fetch.mock.calls[0][1].headers).toEqual(expect.objectContaining({ Authorization: fakeTVMInput.ow.auth }))
+    expect(fetch.mock.calls[0][1].headers).toEqual(expect.objectContaining({ 'X-OW-EXTRA-LOGGING': 'on' }))
   })
 })
 
