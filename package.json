@@ -1,50 +1,62 @@
 {
-  "name": "@adobe/adobeio-cna-tvm-client",
-  "version": "0.3.0",
-  "description": "A JS client to access the token vending machine",
+  "name": "@adobe/aio-lib-core-tvm",
+  "version": "1.0.3",
+  "description": "A JS client to access the Adobe I/O token vending machine",
   "main": "index.js",
   "scripts": {
     "lint": "eslint index.js lib/**/*.js test/**/*.js",
     "beautify": "npm run lint -- --fix",
     "test": "jest -c ./jest.config.js && npm run lint",
+    "e2e": "jest -c ./jest.config.e2e.js",
     "generate-jsdoc": "jsdoc2md -f index.js 'lib/**/*.js' > doc/api.md"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/adobe/adobeio-cna-tvm-client.git"
+    "url": "git+https://github.com/adobe/aio-lib-core-tvm.git"
   },
+  "files": [
+    "lib/",
+    "index.js"
+  ],
   "keywords": [
-    "sdk",
+    "core-sdk",
     "nodejs",
     "adobeio",
-    "cloud-native"
+    "cloud-native",
+    "client"
   ],
   "author": "Adobe Inc.",
   "license": "Apache-2.0",
   "bugs": {
-    "url": "https://github.com/adobe/adobeio-cna-tvm-client/issues"
+    "url": "https://github.com/adobe/aio-lib-core-tvm/issues"
   },
-  "homepage": "https://github.com/adobe/adobeio-cna-tvm-client#readme",
+  "homepage": "https://github.com/adobe/aio-lib-core-tvm#readme",
   "devDependencies": {
-    "@types/jest": "^24.0.17",
-    "@types/hapi__joi": "^15.0.3",
-    "codecov": "^3.5.0",
-    "eslint": "^5.16.0",
-    "eslint-config-standard": "^12.0.0",
-    "eslint-plugin-import": "^2.17.3",
-    "eslint-plugin-jest": "^22.6.4",
-    "eslint-plugin-jsdoc": "^15.3.2",
-    "eslint-plugin-node": "^9.1.0",
-    "eslint-plugin-promise": "^4.1.1",
-    "eslint-plugin-standard": "^4.0.0",
-    "jest": "^24.8.0",
-    "jsdoc-to-markdown": "^5.0.0"
+    "@azure/cosmos": "^3.3.6",
+    "@azure/storage-blob": "^12.0.0",
+    "@types/hapi__joi": "^16.0.1",
+    "@types/jest": "^25.1.0",
+    "aws-sdk": "^2.553.0",
+    "codecov": "^3.6.1",
+    "eslint": "^6.5.1",
+    "eslint-config-standard": "^14.1.0",
+    "eslint-plugin-import": "^2.18.2",
+    "eslint-plugin-jest": "^23.0.2",
+    "eslint-plugin-jsdoc": "^25.4.1",
+    "eslint-plugin-node": "^11.0.0",
+    "eslint-plugin-promise": "^4.2.1",
+    "eslint-plugin-standard": "^4.0.1",
+    "jest": "^24.9.0",
+    "jsdoc-to-markdown": "^5.0.2"
   },
   "dependencies": {
-    "@hapi/joi": "^15.1.0",
-    "fs-extra": "^8.0.1",
+    "@adobe/aio-lib-core-errors": "^3.0.0",
+    "@adobe/aio-lib-core-logging": "1.1.0",
+    "@adobe/aio-lib-core-networking": "^1.0.0",
+    "@hapi/joi": "^16.1.7",
+    "fs-extra": "^9.0.0",
+    "lodash.clonedeep": "^4.5.0",
     "node-fetch": "^2.6.0",
-    "request-promise": "^4.2.4",
-    "upath": "^1.1.2"
+    "upath": "^1.2.0"
   }
 }

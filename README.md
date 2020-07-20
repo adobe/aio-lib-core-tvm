@@ -1,26 +1,28 @@
-[![Version](https://img.shields.io/npm/v/@adobe/adobeio-cna-tvm-client.svg)](https://npmjs.org/package/@adobe/adobeio-cna-tvm-client)
-[![Downloads/week](https://img.shields.io/npm/dw/@adobe/adobeio-cna-tvm-client.svg)](https://npmjs.org/package/@adobe/adobeio-cna-tvm-client)
-[![Build Status](https://travis-ci.com/adobe/adobeio-cna-tvm-client.svg?branch=master)](https://travis-ci.com/adobe/adobeio-cna-tvm-client)
-[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+[![Version](https://img.shields.io/npm/v/@adobe/aio-lib-core-tvm.svg)](https://npmjs.org/package/@adobe/aio-lib-core-tvm)
+[![Downloads/week](https://img.shields.io/npm/dw/@adobe/aio-lib-core-tvm.svg)](https://npmjs.org/package/@adobe/aio-lib-core-tvm)
+[![Build Status](https://travis-ci.com/adobe/aio-lib-core-tvm.svg?branch=master)](https://travis-ci.com/adobe/aio-lib-core-tvm)
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0) 
 [![Codecov
-Coverage](https://img.shields.io/codecov/c/github/adobe/adobeio-cna-tvm-client/master.svg?style=flat-square)](https://codecov.io/gh/adobe/adobeio-cna-tvm-client/)
+Coverage](https://img.shields.io/codecov/c/github/adobe/aio-lib-core-tvm/master.svg?style=flat-square)](https://codecov.io/gh/adobe/aio-lib-core-tvm/)
 
-# Adobe I/O CNA Token Vending Machine Client
+# Adobe I/O Lib Core Token Vending Machine
 
 A JS client to access the token vending machine.
 
-For the server side code see: [adobe/adobeio-cna-token-vending-machine](https://github.com/adobe/adobeio-cna-token-vending-machine)
+For more details on the server side, `goto` [adobe/aio-tvm](https://github.com/adobe/aio-tvm)
 
 ## Install
 
-`npm install @adobe/adobeio-cna-tvm-client`
+`npm install @adobe/aio-lib-core-tvm`
 
 ## Use
 
 ```javascript
-const TvmClient = require('@adobe/adobeio-cna-tvm-client')
+const TvmClient = require('@adobe/aio-lib-core-tvm')
 // init
 const tvm = await TvmClient.init({ ow: { auth: '<myauth>', namespace: '<mynamespace>' } })
+// init with retryOptions
+const tvm = await TvmClient.init({ ow: { auth: '<myauth>', namespace: '<mynamespace>' }, retryOptions: { maxRetries: 5, initialDelayInMillis: 100} })
 
 // aws s3
 const awsS3Credentials = await tvm.getAwsS3Credentials()
@@ -50,6 +52,10 @@ const data = await container.item('<itemKey>', azureCosmosCredentials.partitionK
 ## Explore
 
 `goto` [API](doc/api.md)
+
+## Debug
+
+set `DEBUG=@adobe/aio-lib-core-tvm*` to see debug logs.
 
 ## Contributing
 
