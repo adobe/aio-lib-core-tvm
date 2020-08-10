@@ -182,7 +182,7 @@ describe('init', () => {
 })
 
 describe('getAzurePresignCredentials', () => {
-  const fetchTvmLog = 'fetched credentials from tvm'
+  const fetchTvmPresignLog = 'successfully fetched presign credentials from tvm for'
   const options = {
     blobName: 'fakefile',
     expiryInSeconds: 60
@@ -199,14 +199,14 @@ describe('getAzurePresignCredentials', () => {
       TvmClient.AzurePresignEndpoint + '/' + fakeTVMInput.ow.namespace + '?expiryInSeconds=60&blobName=fakefile')
     // adds Authorization header
     expect(fetch.mock.calls[0][1].headers).toEqual(expect.objectContaining({ Authorization: fakeTVMInput.ow.auth }))
-    expect(mockLogDebug).toHaveBeenCalledWith(expect.stringContaining(fetchTvmLog))
+    expect(mockLogDebug).toHaveBeenCalledWith(expect.stringContaining(fetchTvmPresignLog))
   })
   test('when tvm response has a client error', async () => {
     // fake the fetch to the TVM
     fetch.mockResolvedValue(wrapInFetchError(400))
     fakeTVMInput.cacheFile = false
     const tvmClient = await TvmClient.init(fakeTVMInput)
-    await expect(tvmClient.getAzureBlobPresignCredentials.bind(tvmClient)).toThrowStatusError(400)
+    await expect(tvmClient.getAzureBlobPresignCredentials(options)).rejects.toThrow('[TvmLib:ERROR_RESPONSE] Error response from TVM server with status code: 400')
     expect(mockLogError).toHaveBeenCalledWith(expect.stringContaining(fakeTVMInput.ow.namespace))
     expect(mockLogError).toHaveBeenCalledWith(expect.not.stringContaining(fakeTVMInput.ow.auth))
   })
@@ -215,9 +215,36 @@ describe('getAzurePresignCredentials', () => {
     fetch.mockResolvedValue(wrapInFetchError(401))
     fakeTVMInput.cacheFile = false
     const tvmClient = await TvmClient.init(fakeTVMInput)
-    await expect(tvmClient.getAzureBlobPresignCredentials.bind(tvmClient)).toThrowStatusError(401)
+    await expect(tvmClient.getAzureBlobPresignCredentials(options)).rejects.toThrow('[TvmLib:ERROR_RESPONSE] Error response from TVM server with status code: 401')
     expect(mockLogError).toHaveBeenCalledWith(expect.stringContaining(fakeTVMInput.ow.namespace))
     expect(mockLogError).toHaveBeenCalledWith(expect.not.stringContaining(fakeTVMInput.ow.auth))
+  })
+
+  test('when tvm fetch with no options', async () => {
+    // fake the fetch to the TVM
+    fetch.mockResolvedValue(wrapInFetchError(401))
+    fakeTVMInput.cacheFile = false
+    const tvmClient = await TvmClient.init(fakeTVMInput)
+    await expect(tvmClient.getAzureBlobPresignCredentials()).rejects.toThrow('[TvmLib:ERROR_MISSING_OPTION] expiryInSeconds or blobName')
+    expect(mockLogError).toHaveBeenCalledWith(expect.stringContaining('ERROR_MISSING_OPTION'))
+  })
+
+  test('when tvm fetch with only expiry options', async () => {
+    // fake the fetch to the TVM
+    fetch.mockResolvedValue(wrapInFetchError(401))
+    fakeTVMInput.cacheFile = false
+    const tvmClient = await TvmClient.init(fakeTVMInput)
+    await expect(tvmClient.getAzureBlobPresignCredentials({ expiryInSeconds: 60 })).rejects.toThrow('[TvmLib:ERROR_MISSING_OPTION] expiryInSeconds or blobName')
+    expect(mockLogError).toHaveBeenCalledWith(expect.stringContaining('ERROR_MISSING_OPTION'))
+  })
+
+  test('when tvm fetch with only blobName', async () => {
+    // fake the fetch to the TVM
+    fetch.mockResolvedValue(wrapInFetchError(401))
+    fakeTVMInput.cacheFile = false
+    const tvmClient = await TvmClient.init(fakeTVMInput)
+    await expect(tvmClient.getAzureBlobPresignCredentials({ blobName: 'fake' })).rejects.toThrow('[TvmLib:ERROR_MISSING_OPTION] expiryInSeconds or blobName')
+    expect(mockLogError).toHaveBeenCalledWith(expect.stringContaining('ERROR_MISSING_OPTION'))
   })
 })
 describe('getAzureBlobCredentials', () => {
