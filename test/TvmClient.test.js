@@ -39,6 +39,7 @@ const TvmClient = require('../index')
 
 const maxDate = new Date(8640000000000000).toISOString()
 const minDate = new Date(-8640000000000000).toISOString()
+const ADOBE_IO_GW_API_KEY = 'firefly-aio-tvm'
 
 let fakeTVMInput
 let fakeAzureTVMResponse
@@ -182,7 +183,6 @@ describe('init', () => {
 })
 
 describe('getAzurePresignCredentials', () => {
-  const fetchTvmPresignLog = 'successfully fetched presign credentials from tvm for'
   const options = {
     blobName: 'fakefile',
     expiryInSeconds: 60
@@ -196,10 +196,9 @@ describe('getAzurePresignCredentials', () => {
     expect(creds).toEqual(fakeAzureTVMPresignResponse)
     // calls with namespace as path arg
     expect(fetch.mock.calls[0][0]).toEqual(TvmClient.DefaultApiHost + '/' +
-      TvmClient.AzurePresignEndpoint + '/' + fakeTVMInput.ow.namespace + '?expiryInSeconds=60&blobName=fakefile')
+      TvmClient.AzurePresignEndpoint + '/' + fakeTVMInput.ow.namespace + '?blobName=fakefile&expiryInSeconds=60')
     // adds Authorization header
-    expect(fetch.mock.calls[0][1].headers).toEqual(expect.objectContaining({ Authorization: fakeTVMInput.ow.auth }))
-    expect(mockLogDebug).toHaveBeenCalledWith(expect.stringContaining(fetchTvmPresignLog))
+    expect(fetch.mock.calls[0][1].headers).toEqual({ Authorization: fakeTVMInput.ow.auth, 'x-Api-Key': ADOBE_IO_GW_API_KEY })
   })
   test('when tvm response has a client error', async () => {
     // fake the fetch to the TVM
@@ -286,7 +285,11 @@ describe('getAzureBlobCredentials', () => {
       const tvmClient = await TvmClient.init(fakeTVMInput)
       await expect(tvmClient.getAzureBlobCredentials.bind(tvmClient)).toThrowStatusError(500)
       expect(networkingLib.exponentialBackoff).toHaveBeenCalledTimes(1)
-      expect(networkingLib.exponentialBackoff).toHaveBeenCalledWith(TvmClient.DefaultApiHost + '/' + TvmClient.AzureBlobEndpoint + '/' + fakeTVMInput.ow.namespace, expect.objectContaining({ headers: { Authorization: 'fakeauth' } }), {})
+      expect(networkingLib.exponentialBackoff).toHaveBeenCalledWith(
+        TvmClient.DefaultApiHost + '/' + TvmClient.AzureBlobEndpoint + '/' + fakeTVMInput.ow.namespace,
+        expect.objectContaining({ headers: { Authorization: 'fakeauth', 'x-Api-Key': ADOBE_IO_GW_API_KEY } }),
+        {}
+      )
       expect(fs.readFile).toHaveBeenCalledTimes(0)
       expect(fs.writeFile).toHaveBeenCalledTimes(0)
       expect(mockLogError).toHaveBeenCalledWith(expect.stringContaining(fakeTVMInput.ow.namespace))
@@ -302,7 +305,11 @@ describe('getAzureBlobCredentials', () => {
       const tvmClient = await TvmClient.init(customInput)
       await expect(tvmClient.getAzureBlobCredentials.bind(tvmClient)).toThrowStatusError(500)
       expect(networkingLib.exponentialBackoff).toHaveBeenCalledTimes(1)
-      expect(networkingLib.exponentialBackoff).toHaveBeenCalledWith(TvmClient.DefaultApiHost + '/' + TvmClient.AzureBlobEndpoint + '/' + fakeTVMInput.ow.namespace, expect.objectContaining({ headers: { Authorization: 'fakeauth' } }), { maxRetries: 2 })
+      expect(networkingLib.exponentialBackoff).toHaveBeenCalledWith(
+        TvmClient.DefaultApiHost + '/' + TvmClient.AzureBlobEndpoint + '/' + fakeTVMInput.ow.namespace,
+        expect.objectContaining({ headers: { Authorization: 'fakeauth', 'x-Api-Key': ADOBE_IO_GW_API_KEY } }),
+        { maxRetries: 2 }
+      )
       expect(fs.readFile).toHaveBeenCalledTimes(0)
       expect(fs.writeFile).toHaveBeenCalledTimes(0)
       expect(mockLogError).toHaveBeenCalledWith(expect.stringContaining(fakeTVMInput.ow.namespace))
@@ -318,7 +325,11 @@ describe('getAzureBlobCredentials', () => {
       const tvmClient = await TvmClient.init(customInput)
       await expect(tvmClient.getAzureBlobCredentials.bind(tvmClient)).toThrowStatusError(500)
       expect(networkingLib.exponentialBackoff).toHaveBeenCalledTimes(1)
-      expect(networkingLib.exponentialBackoff).toHaveBeenCalledWith(TvmClient.DefaultApiHost + '/' + TvmClient.AzureBlobEndpoint + '/' + fakeTVMInput.ow.namespace, expect.objectContaining({ headers: { Authorization: 'fakeauth' } }), { initialDelayInMillis: 50 })
+      expect(networkingLib.exponentialBackoff).toHaveBeenCalledWith(
+        TvmClient.DefaultApiHost + '/' + TvmClient.AzureBlobEndpoint + '/' + fakeTVMInput.ow.namespace,
+        expect.objectContaining({ headers: { Authorization: 'fakeauth', 'x-Api-Key': ADOBE_IO_GW_API_KEY } }),
+        { initialDelayInMillis: 50 }
+      )
       expect(fs.readFile).toHaveBeenCalledTimes(0)
       expect(fs.writeFile).toHaveBeenCalledTimes(0)
       expect(mockLogError).toHaveBeenCalledWith(expect.stringContaining(fakeTVMInput.ow.namespace))
