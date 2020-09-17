@@ -196,7 +196,7 @@ describe('getAzurePresignCredentials', () => {
     const creds = await tvmClient.getAzureBlobPresignCredentials(options)
     expect(creds).toEqual(fakeAzureTVMPresignResponse)
     // calls with namespace as path arg
-    expect(fetch.mock.calls[0][0]).toEqual(TvmClient.DefaultApiHost + '/' +
+    expect(fetch.mock.calls[0][0].toString()).toEqual(TvmClient.DefaultApiHost + '/' +
       TvmClient.AzurePresignEndpoint + '/' + fakeTVMInput.ow.namespace + '?expiryInSeconds=60&blobName=fakefile&permissions=fake')
     // adds Authorization header
     expect(fetch.mock.calls[0][1].headers).toEqual(expect.objectContaining({ Authorization: fakeTVMInput.ow.auth }))
