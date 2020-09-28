@@ -35,7 +35,7 @@ jest.doMock('@adobe/aio-lib-core-logging', function () {
 })
 
 // must be after mock logging block, todo find cleaner way
-const TvmClient = require('../index')
+const TvmClient = require('../')
 
 const maxDate = new Date(8640000000000000).toISOString()
 const minDate = new Date(-8640000000000000).toISOString()

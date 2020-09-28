@@ -20,5 +20,15 @@ module.exports = {
     'index.js',
     'lib/**/*.js',
     'util/**/*.js'
+  ],
+  coverageThreshold: {
+    global: {
+      branches: 100,
+      lines: 100,
+      statements: 100
+    }
+  },
+  reporters: [
+    'default'
   ]
 }

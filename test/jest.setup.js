@@ -11,9 +11,6 @@ governing permissions and limitations under the License.
 */
 
 /* eslint-disable jsdoc/require-jsdoc */
-process.on('unhandledRejection', error => {
-  throw error
-})
 
 async function toThrowWithCodeAndMessageContains (received, code, words, status) {
   function checkErrorCode (e, code) {
