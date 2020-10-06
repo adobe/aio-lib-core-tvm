@@ -1,6 +1,6 @@
 {
   "name": "@adobe/aio-lib-core-tvm",
-  "version": "1.3.0",
+  "version": "1.3.1",
   "description": "A JS client to access the Adobe I/O token vending machine",
   "main": "lib/TvmClient.js",
   "scripts": {
@@ -54,7 +54,7 @@
   },
   "dependencies": {
     "@adobe/aio-lib-core-errors": "^3.0.0",
-    "@adobe/aio-lib-core-logging": "1.1.0",
+    "@adobe/aio-lib-core-logging": "^1.1.0",
     "@adobe/aio-lib-core-networking": "^1.0.0",
     "@hapi/joi": "^16.1.7",
     "fs-extra": "^9.0.0",
