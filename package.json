@@ -7,7 +7,7 @@
     "lint": "eslint lib/**/*.js test/**/*.js",
     "beautify": "npm run lint -- --fix",
     "test": "jest -c ./jest.config.js && npm run lint",
-    "generate-jsdoc": "jsdoc2md -f index.js 'lib/**/*.js' > doc/api.md"
+    "generate-jsdoc": "jsdoc2md -f 'lib/**/*.js' > doc/api.md"
   },
   "repository": {
     "type": "git",

@@ -131,6 +131,7 @@ Request presign signatures for Azure blobs.
 | options | <code>object</code> | presign options |
 | options.blobName | <code>string</code> | file path |
 | options.expiryInSeconds | <code>number</code> | presign URL expiry duration |
+| options.permissions | <code>string</code> | premissions for presigned URL |
 
 <a name="TvmClient.init"></a>
 
@@ -152,7 +153,7 @@ const tvm = await TvmClient.init({ ow: { namespace, auth } })
 | Param | Type | Description |
 | --- | --- | --- |
 | config | <code>object</code> | TvmClientParams |
-| [config.apiUrl] | <code>string</code> | url to tvm api - defaults to https://adobeio.adobeioruntime.net/apis/tvm |
+| [config.apiUrl] | <code>string</code> | url to tvm api - defaults to 'https://firefly-tvm.adobe.io' |
 | [config.ow] | [<code>OpenWhiskCredentials</code>](#OpenWhiskCredentials) | Openwhisk credentials. As an alternative you can pass those through environment variables: `__OW_NAMESPACE` and `__OW_API_KEY` |
 | [config.retryOptions] | [<code>RetryOptions</code>](#RetryOptions) | RetryOptions. Defaults to { maxRetries: 3, initialDelayInMillis: 100} |
 | [config.cacheFile] | <code>string</code> | if omitted defaults to tmpdir/.tvmCache, use false or null to not cache |
@@ -244,7 +245,7 @@ to instantiate the s3 object.
 | secretAccessKey | <code>string</code> | secret for key |
 | sessionToken | <code>string</code> | token |
 | expiration | <code>string</code> | date ISO/UTC |
-| params | <code>object</code> | aws params |
+| params | <code>object</code> | properties of storage object |
 | params.Bucket | <code>string</code> | bucket name |
 
 <a name="TvmLibErrors"></a>
