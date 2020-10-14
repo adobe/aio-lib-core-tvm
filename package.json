@@ -1,14 +1,13 @@
 {
   "name": "@adobe/aio-lib-core-tvm",
-  "version": "1.3.2",
+  "version": "2.0.0",
   "description": "A JS client to access the Adobe I/O token vending machine",
   "main": "lib/TvmClient.js",
   "scripts": {
     "lint": "eslint lib/**/*.js test/**/*.js",
     "beautify": "npm run lint -- --fix",
     "test": "jest -c ./jest.config.js && npm run lint",
-    "e2e": "jest -c ./jest.config.e2e.js",
-    "generate-jsdoc": "jsdoc2md -f index.js 'lib/**/*.js' > doc/api.md"
+    "generate-jsdoc": "jsdoc2md -f 'lib/**/*.js' > doc/api.md"
   },
   "repository": {
     "type": "git",
