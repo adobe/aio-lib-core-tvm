@@ -251,7 +251,7 @@ describe('getAzurePresignCredentials', () => {
   })
 })
 describe('revokePresignURLs', () => {
-  const fetchTvmPresignLog = 'successfully revoked presign credentials from tvm'
+  const fetchTvmPresignLog = 'successfully made TVM request for'
 
   test('when tvm response is valid', async () => {
     // fake the fetch to the TVM
@@ -264,7 +264,7 @@ describe('revokePresignURLs', () => {
     expect(fetch.mock.calls[0][0].toString()).toEqual(TvmClient.DefaultApiHost + '/' +
       TvmClient.AzureRevokePresignEndpoint + '/' + fakeTVMInput.ow.namespace)
     // adds Authorization header
-    expect(fetch.mock.calls[0][1].headers).toEqual(expect.objectContaining({ Authorization: fakeTVMInput.ow.auth }))
+    expect(fetch.mock.calls[0][1].headers).toEqual(expect.objectContaining({ Authorization: 'Basic ZmFrZWF1dGg=', 'x-Api-Key': 'firefly-aio-tvm' }))
     expect(mockLogDebug).toHaveBeenCalledWith(expect.stringContaining(fetchTvmPresignLog))
   })
   test('when tvm response has a client error', async () => {
@@ -290,7 +290,7 @@ describe('revokePresignURLs', () => {
 describe('getAzureBlobCredentials', () => {
   const readCacheLog = 'read credentials from cache file'
   const writeCacheLog = 'wrote credentials to cache file'
-  const fetchTvmLog = 'fetched credentials from tvm'
+  const fetchTvmLog = 'successfully made TVM request for'
   const expiredCacheLog = 'expired'
   describe('without caching cacheFile=false', () => {
     test('when tvm response is valid', async () => {
@@ -487,7 +487,7 @@ describe('getAzureCosmosCredentials', () => {
 describe('with in memory caching', () => {
   const readCacheLog = 'read credentials from cache with key'
   const writeCacheLog = 'wrote credentials to cache with key'
-  const fetchTvmLog = 'fetched credentials from tvm'
+  const fetchTvmLog = 'successfully made TVM request for'
   const expiredCacheLog = 'expired'
   // the general tests are same, we test just that the method is defined
   test('with cacheFile set to false', async () => {
