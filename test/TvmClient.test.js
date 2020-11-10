@@ -250,10 +250,47 @@ describe('getAzurePresignCredentials', () => {
     expect(mockLogError).toHaveBeenCalledWith(expect.stringContaining('ERROR_MISSING_OPTION'))
   })
 })
+describe('revokePresignURLs', () => {
+  const fetchTvmPresignLog = 'successfully made TVM request for'
+
+  test('when tvm response is valid', async () => {
+    // fake the fetch to the TVM
+    fetch.mockResolvedValue(wrapInFetchResponse(fakeAzureTVMPresignResponse))
+    fakeTVMInput.cacheFile = false
+    const tvmClient = await TvmClient.init(fakeTVMInput)
+    const creds = await tvmClient.revokePresignURLs()
+    expect(creds).toEqual(fakeAzureTVMPresignResponse)
+    // calls with namespace as path arg
+    expect(fetch.mock.calls[0][0].toString()).toEqual(TvmClient.DefaultApiHost + '/' +
+      TvmClient.AzureRevokePresignEndpoint + '/' + fakeTVMInput.ow.namespace)
+    // adds Authorization header
+    expect(fetch.mock.calls[0][1].headers).toEqual(expect.objectContaining({ Authorization: 'Basic ZmFrZWF1dGg=', 'x-Api-Key': 'firefly-aio-tvm' }))
+    expect(mockLogDebug).toHaveBeenCalledWith(expect.stringContaining(fetchTvmPresignLog))
+  })
+  test('when tvm response has a client error', async () => {
+    // fake the fetch to the TVM
+    fetch.mockResolvedValue(wrapInFetchError(400))
+    fakeTVMInput.cacheFile = false
+    const tvmClient = await TvmClient.init(fakeTVMInput)
+    await expect(tvmClient.revokePresignURLs()).rejects.toThrow('[TvmLib:ERROR_RESPONSE] error response from TVM server with status code: 400')
+    expect(mockLogError).toHaveBeenCalledWith(expect.stringContaining(fakeTVMInput.ow.namespace))
+    expect(mockLogError).toHaveBeenCalledWith(expect.not.stringContaining(fakeTVMInput.ow.auth))
+  })
+  test('when tvm fetch is unauthorized', async () => {
+    // fake the fetch to the TVM
+    fetch.mockResolvedValue(wrapInFetchError(401))
+    fakeTVMInput.cacheFile = false
+    const tvmClient = await TvmClient.init(fakeTVMInput)
+    await expect(tvmClient.revokePresignURLs()).rejects.toThrow('[TvmLib:ERROR_RESPONSE] error response from TVM server with status code: 401')
+    expect(mockLogError).toHaveBeenCalledWith(expect.stringContaining(fakeTVMInput.ow.namespace))
+    expect(mockLogError).toHaveBeenCalledWith(expect.not.stringContaining(fakeTVMInput.ow.auth))
+  })
+})
+
 describe('getAzureBlobCredentials', () => {
   const readCacheLog = 'read credentials from cache file'
   const writeCacheLog = 'wrote credentials to cache file'
-  const fetchTvmLog = 'fetched credentials from tvm'
+  const fetchTvmLog = 'successfully made TVM request for'
   const expiredCacheLog = 'expired'
   describe('without caching cacheFile=false', () => {
     test('when tvm response is valid', async () => {
@@ -450,7 +487,7 @@ describe('getAzureCosmosCredentials', () => {
 describe('with in memory caching', () => {
   const readCacheLog = 'read credentials from cache with key'
   const writeCacheLog = 'wrote credentials to cache with key'
-  const fetchTvmLog = 'fetched credentials from tvm'
+  const fetchTvmLog = 'successfully made TVM request for'
   const expiredCacheLog = 'expired'
   // the general tests are same, we test just that the method is defined
   test('with cacheFile set to false', async () => {
