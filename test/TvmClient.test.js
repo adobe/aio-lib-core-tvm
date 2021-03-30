@@ -153,9 +153,18 @@ describe('init', () => {
     })
   })
   describe('api url', () => {
-    test('when not specified', async () => {
+    test('when not specified AIO_ENV_IS_STAGE not set', async () => {
+      const prodURL = 'https://firefly-tvm.adobe.io'
       const tvm = await TvmClient.init(cloneDeep(fakeTVMInput))
-      expect(tvm.apiUrl).toEqual(TvmClient.DefaultApiHost)
+      expect(tvm.apiUrl).toEqual(prodURL)
+      expect(TvmClient.DefaultApiHost).toEqual(prodURL)
+    })
+    test('when not specified AIO_ENV_IS_STAGE set to false', async () => {
+      global.AIO_ENV_IS_STAGE = false
+      const prodURL = 'https://firefly-tvm.adobe.io'
+      const tvm = await TvmClient.init(cloneDeep(fakeTVMInput))
+      expect(tvm.apiUrl).toEqual(prodURL)
+      expect(TvmClient.DefaultApiHost).toEqual(prodURL)
     })
     test('when specified', async () => {
       const apiUrl = 'https://fake.com'
