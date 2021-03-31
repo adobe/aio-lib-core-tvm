@@ -23,6 +23,9 @@ jest.mock('crypto')
 
 const networkingLib = require('@adobe/aio-lib-core-networking')
 
+const libEnv = require('@adobe/aio-lib-env')
+jest.mock('@adobe/aio-lib-env')
+
 const mockLogDebug = jest.fn()
 const mockLogError = jest.fn()
 jest.doMock('@adobe/aio-lib-core-logging', function () {
@@ -119,6 +122,8 @@ beforeEach(async () => {
   cacheContent = JSON.stringify({ fakeCacheKey: fakeAzureTVMResponse })
   delete process.env.__OW_API_KEY
   delete process.env.__OW_NAMESPACE
+
+  libEnv.getCliEnv.mockReturnValue('prod')
 })
 
 describe('init', () => {
@@ -165,6 +170,13 @@ describe('init', () => {
       const tvm = await TvmClient.init(cloneDeep(fakeTVMInput))
       expect(tvm.apiUrl).toEqual(prodURL)
       expect(TvmClient.DefaultApiHost).toEqual(prodURL)
+    })
+    test('when not specified AIO_ENV_IS_STAGE set to true', async () => {
+      libEnv.getCliEnv.mockReturnValue('stage')
+      const stageURL = 'https://firefly-tvm-stage.adobe.io'
+      const tvm = await TvmClient.init(cloneDeep(fakeTVMInput))
+      expect(tvm.apiUrl).toEqual(stageURL)
+      expect(TvmClient.DefaultApiHost).toEqual(stageURL)
     })
     test('when specified', async () => {
       const apiUrl = 'https://fake.com'

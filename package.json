@@ -56,6 +56,7 @@
     "@adobe/aio-lib-core-errors": "^3.0.0",
     "@adobe/aio-lib-core-logging": "^1.1.2",
     "@adobe/aio-lib-core-networking": "^1.0.0",
+    "@adobe/aio-lib-env": "^1.0.0",
     "@hapi/joi": "^16.1.7",
     "fs-extra": "^9.0.0",
     "lodash.clonedeep": "^4.5.0",
