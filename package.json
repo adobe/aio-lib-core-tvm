@@ -1,6 +1,6 @@
 {
   "name": "@adobe/aio-lib-core-tvm",
-  "version": "2.2.0",
+  "version": "2.2.1",
   "description": "A JS client to access the Adobe I/O token vending machine",
   "main": "lib/TvmClient.js",
   "scripts": {
