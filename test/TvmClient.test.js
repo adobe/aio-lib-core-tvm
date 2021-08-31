@@ -55,12 +55,18 @@ let fakeAzureTVMPresignResponse
 const wrapInFetchResponse = (body) => {
   return {
     ok: true,
+    headers: {
+      get: () => 'fake req id'
+    },
     json: async () => body
   }
 }
 const wrapInFetchError = (status) => {
   return {
     ok: false,
+    headers: {
+      get: () => 'fake req id'
+    },
     json: async () => 'error',
     text: async () => 'error',
     status
@@ -273,6 +279,7 @@ describe('getAzurePresignCredentials', () => {
 })
 describe('revokePresignURLs', () => {
   const fetchTvmPresignLog = 'successfully made TVM request for'
+  const requestIdLog = 'request Id fake req id'
 
   test('when tvm response is valid', async () => {
     // fake the fetch to the TVM
@@ -287,6 +294,7 @@ describe('revokePresignURLs', () => {
     // adds Authorization header
     expect(fetch.mock.calls[0][1].headers).toEqual(expect.objectContaining({ Authorization: 'Basic ZmFrZWF1dGg=', 'x-Api-Key': 'firefly-aio-tvm' }))
     expect(mockLogDebug).toHaveBeenCalledWith(expect.stringContaining(fetchTvmPresignLog))
+    expect(mockLogDebug).toHaveBeenCalledWith(expect.stringContaining(requestIdLog))
   })
   test('when tvm response has a client error', async () => {
     // fake the fetch to the TVM
@@ -312,6 +320,7 @@ describe('getAzureBlobCredentials', () => {
   const readCacheLog = 'read credentials from cache file'
   const writeCacheLog = 'wrote credentials to cache file'
   const fetchTvmLog = 'successfully made TVM request for'
+  const requestIdLog = 'request Id fake req id'
   const expiredCacheLog = 'expired'
   describe('without caching cacheFile=false', () => {
     test('when tvm response is valid', async () => {
@@ -328,6 +337,7 @@ describe('getAzureBlobCredentials', () => {
       expect(fs.readFile).toHaveBeenCalledTimes(0)
       expect(fs.writeFile).toHaveBeenCalledTimes(0)
       expect(mockLogDebug).toHaveBeenCalledWith(expect.stringContaining(fetchTvmLog))
+      expect(mockLogDebug).toHaveBeenCalledWith(expect.stringContaining(requestIdLog))
     })
     test('when tvm response has a client error', async () => {
       // fake the fetch to the TVM
@@ -472,6 +482,7 @@ describe('getAzureBlobCredentials', () => {
       expect(fs.writeFile).toHaveBeenCalledWith(TvmClient.DefaultTVMCacheFile, JSON.stringify({ fakeCacheKey: fakeAzureTVMResponse }))
       expect(mockLogDebug).toHaveBeenCalledWith(expect.stringContaining(expiredCacheLog))
       expect(mockLogDebug).toHaveBeenCalledWith(expect.stringContaining(fetchTvmLog))
+      expect(mockLogDebug).toHaveBeenCalledWith(expect.stringContaining(requestIdLog))
       expect(mockLogDebug).toHaveBeenCalledWith(expect.stringContaining(writeCacheLog))
     })
   })
@@ -509,6 +520,7 @@ describe('with in memory caching', () => {
   const readCacheLog = 'read credentials from cache with key'
   const writeCacheLog = 'wrote credentials to cache with key'
   const fetchTvmLog = 'successfully made TVM request for'
+  const requestIdLog = 'request Id fake req id'
   const expiredCacheLog = 'expired'
   // the general tests are same, we test just that the method is defined
   test('with cacheFile set to false', async () => {
@@ -552,5 +564,6 @@ describe('with in memory caching', () => {
     expect(mockLogDebug).toHaveBeenCalledWith(expect.stringContaining(expiredCacheLog))
     expect(mockLogDebug).toHaveBeenCalledWith(expect.stringContaining(fetchTvmLog))
     expect(mockLogDebug).toHaveBeenCalledWith(expect.stringContaining(writeCacheLog))
+    expect(mockLogDebug).toHaveBeenCalledWith(expect.stringContaining(requestIdLog))
   })
 })
