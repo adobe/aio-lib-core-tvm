@@ -34,10 +34,10 @@ const s3 = new aws.S3(awsS3Credentials)
 const azureBlobCredentials = await tvm.getAzureBlobCredentials()
 const azure = require('@azure/storage-blob')
 const azureCreds = new azure.AnonymousCredential()
-const pipeline = azure.StorageURL.newPipeline(azureCreds)
-const containerURLPrivate = new azure.ContainerURL(azureBlobCredentials.sasURLPrivate, pipeline)
-const containerURLPublic = new azure.ContainerURL(azureBlobCredentials.sasURLPublic, pipeline)
-// ...operations on containerURLPrivate and containerURLPublic
+const pipeline = azure.newPipeline(azureCreds)
+const containerClientPrivate = new azure.ContainerClient(azureBlobCredentials.sasURLPrivate, pipeline)
+const containerClientPublic = new azure.ContainerClient(azureBlobCredentials.sasURLPublic, pipeline)
+// ...operations on containerClientPrivate and containerClientPublic
 
 // azure cosmos
 const azureCosmosCredentials = await tvm.getAzureCosmosCredentials()

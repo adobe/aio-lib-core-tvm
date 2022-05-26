@@ -6,6 +6,14 @@
 </dd>
 </dl>
 
+## Functions
+
+<dl>
+<dt><a href="#getDefaultAPIHost">getDefaultAPIHost()</a> ⇒ <code>string</code></dt>
+<dd><p>Get Default APIHost based on ENV</p>
+</dd>
+</dl>
+
 ## Typedefs
 
 <dl>
@@ -22,6 +30,9 @@ blob container. These two signed URLs can then be passed to the azure blob stora
 </dd>
 <dt><a href="#TvmResponseAzurePresign">TvmResponseAzurePresign</a> : <code>object</code></dt>
 <dd><p>Tvm response with SAS Azure Presign credentials.</p>
+</dd>
+<dt><a href="#TvmResponseAzureRevoke">TvmResponseAzureRevoke</a> : <code>object</code></dt>
+<dd><p>Tvm response for Azure Presign revoke.</p>
 </dd>
 <dt><a href="#TvmResponseAzureCosmos">TvmResponseAzureCosmos</a> : <code>object</code></dt>
 <dd><p>Tvm response with Azure Cosmos resource credentials. Gives access to an isolated partition within a CosmosDB container.</p>
@@ -49,6 +60,7 @@ Client SDK for Token Vending Machine (TVM)
         * [.getAwsS3Credentials()](#TvmClient+getAwsS3Credentials) ⇒ [<code>Promise.&lt;TvmResponseAwsS3&gt;</code>](#TvmResponseAwsS3)
         * [.getAzureCosmosCredentials()](#TvmClient+getAzureCosmosCredentials) ⇒ [<code>Promise.&lt;TvmResponseAzureCosmos&gt;</code>](#TvmResponseAzureCosmos)
         * [.getAzureBlobPresignCredentials(options)](#TvmClient+getAzureBlobPresignCredentials) ⇒ [<code>Promise.&lt;TvmResponseAzurePresign&gt;</code>](#TvmResponseAzurePresign)
+        * [.revokePresignURLs()](#TvmClient+revokePresignURLs) ⇒ [<code>Promise.&lt;TvmResponseAzureRevoke&gt;</code>](#TvmResponseAzureRevoke)
     * _static_
         * [.init(config)](#TvmClient.init) ⇒ [<code>Promise.&lt;TvmClient&gt;</code>](#TvmClient)
 
@@ -63,9 +75,9 @@ const tvmResponse = await tvm.getAzureBlobCredentials()
 
 const azure = require('@azure/storage-blob')
 const azureCreds = new azure.AnonymousCredential()
-const pipeline = azure.StorageURL.newPipeline(azureCreds)
-const containerURLPrivate = new azure.ContainerURL(tvmResponse.sasURLPrivate, pipeline)
-const containerURLPublic = new azure.ContainerURL(tvmResponse.sasURLPublic, pipeline)
+const pipeline = azure.newPipeline(azureCreds)
+const containerClientPrivate = new azure.ContainerClient(tvmResponse.sasURLPrivate, pipeline)
+const containerClientPublic = new azure.ContainerClient(tvmResponse.sasURLPublic, pipeline)
 ```
 
 **Kind**: instance method of [<code>TvmClient</code>](#TvmClient)  
@@ -133,6 +145,17 @@ Request presign signatures for Azure blobs.
 | options.expiryInSeconds | <code>number</code> | presign URL expiry duration |
 | options.permissions | <code>string</code> | premissions for presigned URL |
 
+<a name="TvmClient+revokePresignURLs"></a>
+
+### tvmClient.revokePresignURLs() ⇒ [<code>Promise.&lt;TvmResponseAzureRevoke&gt;</code>](#TvmResponseAzureRevoke)
+Revoke all presigned URLs for Azure blob storage.
+
+**Kind**: instance method of [<code>TvmClient</code>](#TvmClient)  
+**Returns**: [<code>Promise.&lt;TvmResponseAzureRevoke&gt;</code>](#TvmResponseAzureRevoke) - success response  
+**Throws**:
+
+- <code>codes.ERROR\_RESPONSE</code> 
+
 <a name="TvmClient.init"></a>
 
 ### TvmClient.init(config) ⇒ [<code>Promise.&lt;TvmClient&gt;</code>](#TvmClient)
@@ -158,6 +181,13 @@ const tvm = await TvmClient.init({ ow: { namespace, auth } })
 | [config.retryOptions] | [<code>RetryOptions</code>](#RetryOptions) | RetryOptions. Defaults to { maxRetries: 3, initialDelayInMillis: 100} |
 | [config.cacheFile] | <code>string</code> | if omitted defaults to tmpdir/.tvmCache, use false or null to not cache |
 
+<a name="getDefaultAPIHost"></a>
+
+## getDefaultAPIHost() ⇒ <code>string</code>
+Get Default APIHost based on ENV
+
+**Kind**: global function  
+**Returns**: <code>string</code> - default api host  
 <a name="OpenWhiskCredentials"></a>
 
 ## OpenWhiskCredentials : <code>object</code>
@@ -212,6 +242,12 @@ Tvm response with SAS Azure Presign credentials.
 | --- | --- | --- |
 | signature | <code>string</code> | sas signature for the blob |
 
+<a name="TvmResponseAzureRevoke"></a>
+
+## TvmResponseAzureRevoke : <code>object</code>
+Tvm response for Azure Presign revoke.
+
+**Kind**: global typedef  
 <a name="TvmResponseAzureCosmos"></a>
 
 ## TvmResponseAzureCosmos : <code>object</code>
