@@ -15,13 +15,18 @@ const cloneDeep = require('lodash.clonedeep')
 const fs = require('fs-extra')
 jest.mock('fs-extra')
 
-const fetch = require('node-fetch')
-jest.mock('node-fetch')
-
 const crypto = require('crypto')
 jest.mock('crypto')
 
-const networkingLib = require('@adobe/aio-lib-core-networking')
+const { HttpExponentialBackoff } = require('@adobe/aio-lib-core-networking')
+jest.mock('@adobe/aio-lib-core-networking')
+
+const mockExponentialBackoff = jest.fn()
+HttpExponentialBackoff.mockImplementation(() => {
+  return {
+    exponentialBackoff: mockExponentialBackoff
+  }
+})
 
 const libEnv = require('@adobe/aio-lib-env')
 jest.mock('@adobe/aio-lib-env')
@@ -86,7 +91,7 @@ beforeEach(async () => {
   fs.readFile.mockReset()
   fs.writeFile.mockReset()
 
-  fetch.mockReset()
+  mockExponentialBackoff.mockReset()
   crypto.createHash.mockReset()
 
   mockLogDebug.mockReset()
@@ -220,20 +225,20 @@ describe('getAzurePresignCredentials', () => {
   }
   test('when tvm response is valid', async () => {
     // fake the fetch to the TVM
-    fetch.mockResolvedValue(wrapInFetchResponse(fakeAzureTVMPresignResponse))
+    mockExponentialBackoff.mockResolvedValue(wrapInFetchResponse(fakeAzureTVMPresignResponse))
     fakeTVMInput.cacheFile = false
     const tvmClient = await TvmClient.init(fakeTVMInput)
     const creds = await tvmClient.getAzureBlobPresignCredentials(options)
     expect(creds).toEqual(fakeAzureTVMPresignResponse)
     // calls with namespace as path arg
-    expect(fetch.mock.calls[0][0].toString()).toEqual(TvmClient.DefaultApiHost + '/' +
+    expect(mockExponentialBackoff.mock.calls[0][0].toString()).toEqual(TvmClient.DefaultApiHost + '/' +
       TvmClient.AzurePresignEndpoint + '/' + fakeTVMInput.ow.namespace + '?blobName=fakefile&expiryInSeconds=60&permissions=fake')
     // adds Authorization header
-    expect(fetch.mock.calls[0][1].headers).toEqual({ Authorization: fakeAuthBase64Header, 'x-Api-Key': ADOBE_IO_GW_API_KEY })
+    expect(mockExponentialBackoff.mock.calls[0][1].headers).toEqual({ Authorization: fakeAuthBase64Header, 'x-Api-Key': ADOBE_IO_GW_API_KEY })
   })
   test('when tvm response has a client error', async () => {
     // fake the fetch to the TVM
-    fetch.mockResolvedValue(wrapInFetchError(400))
+    mockExponentialBackoff.mockResolvedValue(wrapInFetchError(400))
     fakeTVMInput.cacheFile = false
     const tvmClient = await TvmClient.init(fakeTVMInput)
     await expect(tvmClient.getAzureBlobPresignCredentials(options)).rejects.toThrow('[TvmLib:ERROR_RESPONSE] error response from TVM server with status code: 400')
@@ -242,7 +247,7 @@ describe('getAzurePresignCredentials', () => {
   })
   test('when tvm fetch is unauthorized', async () => {
     // fake the fetch to the TVM
-    fetch.mockResolvedValue(wrapInFetchError(401))
+    mockExponentialBackoff.mockResolvedValue(wrapInFetchError(401))
     fakeTVMInput.cacheFile = false
     const tvmClient = await TvmClient.init(fakeTVMInput)
     await expect(tvmClient.getAzureBlobPresignCredentials(options)).rejects.toThrow('[TvmLib:ERROR_RESPONSE] error response from TVM server with status code: 401')
@@ -252,7 +257,7 @@ describe('getAzurePresignCredentials', () => {
 
   test('when tvm fetch with no options', async () => {
     // fake the fetch to the TVM
-    fetch.mockResolvedValue(wrapInFetchError(401))
+    mockExponentialBackoff.mockResolvedValue(wrapInFetchError(401))
     fakeTVMInput.cacheFile = false
     const tvmClient = await TvmClient.init(fakeTVMInput)
     await expect(tvmClient.getAzureBlobPresignCredentials()).rejects.toThrow('[TvmLib:ERROR_MISSING_OPTION] missing one or more of required options: blobName, expiryInSeconds, permissions')
@@ -261,7 +266,7 @@ describe('getAzurePresignCredentials', () => {
 
   test('when tvm fetch with only expiry options', async () => {
     // fake the fetch to the TVM
-    fetch.mockResolvedValue(wrapInFetchError(401))
+    mockExponentialBackoff.mockResolvedValue(wrapInFetchError(401))
     fakeTVMInput.cacheFile = false
     const tvmClient = await TvmClient.init(fakeTVMInput)
     await expect(tvmClient.getAzureBlobPresignCredentials({ expiryInSeconds: 60 })).rejects.toThrow('[TvmLib:ERROR_MISSING_OPTION] missing one or more of required options: blobName, expiryInSeconds, permissions')
@@ -270,7 +275,7 @@ describe('getAzurePresignCredentials', () => {
 
   test('when tvm fetch with only blobName', async () => {
     // fake the fetch to the TVM
-    fetch.mockResolvedValue(wrapInFetchError(401))
+    mockExponentialBackoff.mockResolvedValue(wrapInFetchError(401))
     fakeTVMInput.cacheFile = false
     const tvmClient = await TvmClient.init(fakeTVMInput)
     await expect(tvmClient.getAzureBlobPresignCredentials({ blobName: 'fake' })).rejects.toThrow('[TvmLib:ERROR_MISSING_OPTION] missing one or more of required options: blobName, expiryInSeconds, permissions')
@@ -283,22 +288,22 @@ describe('revokePresignURLs', () => {
 
   test('when tvm response is valid', async () => {
     // fake the fetch to the TVM
-    fetch.mockResolvedValue(wrapInFetchResponse(fakeAzureTVMPresignResponse))
+    mockExponentialBackoff.mockResolvedValue(wrapInFetchResponse(fakeAzureTVMPresignResponse))
     fakeTVMInput.cacheFile = false
     const tvmClient = await TvmClient.init(fakeTVMInput)
     const creds = await tvmClient.revokePresignURLs()
     expect(creds).toEqual(fakeAzureTVMPresignResponse)
     // calls with namespace as path arg
-    expect(fetch.mock.calls[0][0].toString()).toEqual(TvmClient.DefaultApiHost + '/' +
+    expect(mockExponentialBackoff.mock.calls[0][0].toString()).toEqual(TvmClient.DefaultApiHost + '/' +
       TvmClient.AzureRevokePresignEndpoint + '/' + fakeTVMInput.ow.namespace)
     // adds Authorization header
-    expect(fetch.mock.calls[0][1].headers).toEqual(expect.objectContaining({ Authorization: 'Basic ZmFrZWF1dGg=', 'x-Api-Key': 'firefly-aio-tvm' }))
+    expect(mockExponentialBackoff.mock.calls[0][1].headers).toEqual(expect.objectContaining({ Authorization: 'Basic ZmFrZWF1dGg=', 'x-Api-Key': 'firefly-aio-tvm' }))
     expect(mockLogDebug).toHaveBeenCalledWith(expect.stringContaining(fetchTvmPresignLog))
     expect(mockLogDebug).toHaveBeenCalledWith(expect.stringContaining(requestIdLog))
   })
   test('when tvm response has a client error', async () => {
     // fake the fetch to the TVM
-    fetch.mockResolvedValue(wrapInFetchError(400))
+    mockExponentialBackoff.mockResolvedValue(wrapInFetchError(400))
     fakeTVMInput.cacheFile = false
     const tvmClient = await TvmClient.init(fakeTVMInput)
     await expect(tvmClient.revokePresignURLs()).rejects.toThrow('[TvmLib:ERROR_RESPONSE] error response from TVM server with status code: 400')
@@ -307,7 +312,7 @@ describe('revokePresignURLs', () => {
   })
   test('when tvm fetch is unauthorized', async () => {
     // fake the fetch to the TVM
-    fetch.mockResolvedValue(wrapInFetchError(401))
+    mockExponentialBackoff.mockResolvedValue(wrapInFetchError(401))
     fakeTVMInput.cacheFile = false
     const tvmClient = await TvmClient.init(fakeTVMInput)
     await expect(tvmClient.revokePresignURLs()).rejects.toThrow('[TvmLib:ERROR_RESPONSE] error response from TVM server with status code: 401')
@@ -325,15 +330,15 @@ describe('getAzureBlobCredentials', () => {
   describe('without caching cacheFile=false', () => {
     test('when tvm response is valid', async () => {
       // fake the fetch to the TVM
-      fetch.mockResolvedValue(wrapInFetchResponse(fakeAzureTVMResponse))
+      mockExponentialBackoff.mockResolvedValue(wrapInFetchResponse(fakeAzureTVMResponse))
       fakeTVMInput.cacheFile = false
       const tvmClient = await TvmClient.init(fakeTVMInput)
       const creds = await tvmClient.getAzureBlobCredentials()
       expect(creds).toEqual(fakeAzureTVMResponse)
       // calls with namespace as path arg
-      expect(fetch.mock.calls[0][0].toString()).toEqual(TvmClient.DefaultApiHost + '/' + TvmClient.AzureBlobEndpoint + '/' + fakeTVMInput.ow.namespace)
+      expect(mockExponentialBackoff.mock.calls[0][0].toString()).toEqual(TvmClient.DefaultApiHost + '/' + TvmClient.AzureBlobEndpoint + '/' + fakeTVMInput.ow.namespace)
       // adds Authorization header
-      expect(fetch.mock.calls[0][1].headers).toEqual(expect.objectContaining({ Authorization: fakeAuthBase64Header }))
+      expect(mockExponentialBackoff.mock.calls[0][1].headers).toEqual(expect.objectContaining({ Authorization: fakeAuthBase64Header }))
       expect(fs.readFile).toHaveBeenCalledTimes(0)
       expect(fs.writeFile).toHaveBeenCalledTimes(0)
       expect(mockLogDebug).toHaveBeenCalledWith(expect.stringContaining(fetchTvmLog))
@@ -341,7 +346,7 @@ describe('getAzureBlobCredentials', () => {
     })
     test('when tvm response has a client error', async () => {
       // fake the fetch to the TVM
-      fetch.mockResolvedValue(wrapInFetchError(400))
+      mockExponentialBackoff.mockResolvedValue(wrapInFetchError(400))
       fakeTVMInput.cacheFile = false
       const tvmClient = await TvmClient.init(fakeTVMInput)
       await expect(tvmClient.getAzureBlobCredentials.bind(tvmClient)).toThrowStatusError(400)
@@ -351,13 +356,12 @@ describe('getAzureBlobCredentials', () => {
       expect(mockLogError).toHaveBeenCalledWith(expect.not.stringContaining(fakeTVMInput.ow.auth))
     })
     test('when tvm response has a server error with default maxRetries and initialDelayInMillis', async () => {
-      const originalFunc = networkingLib.exponentialBackoff
-      networkingLib.exponentialBackoff = jest.fn().mockResolvedValue(wrapInFetchError(500))
+      mockExponentialBackoff.mockResolvedValue(wrapInFetchError(500))
       fakeTVMInput.cacheFile = false
       const tvmClient = await TvmClient.init(fakeTVMInput)
       await expect(tvmClient.getAzureBlobCredentials.bind(tvmClient)).toThrowStatusError(500)
-      expect(networkingLib.exponentialBackoff).toHaveBeenCalledTimes(1)
-      expect(networkingLib.exponentialBackoff).toHaveBeenCalledWith(
+      expect(mockExponentialBackoff).toHaveBeenCalledTimes(1)
+      expect(mockExponentialBackoff).toHaveBeenCalledWith(
         new URL(TvmClient.DefaultApiHost + '/' + TvmClient.AzureBlobEndpoint + '/' + fakeTVMInput.ow.namespace),
         expect.objectContaining({ headers: { Authorization: fakeAuthBase64Header, 'x-Api-Key': ADOBE_IO_GW_API_KEY } }),
         {}
@@ -366,18 +370,16 @@ describe('getAzureBlobCredentials', () => {
       expect(fs.writeFile).toHaveBeenCalledTimes(0)
       expect(mockLogError).toHaveBeenCalledWith(expect.stringContaining(fakeTVMInput.ow.namespace))
       expect(mockLogError).toHaveBeenCalledWith(expect.not.stringContaining(fakeTVMInput.ow.auth))
-      networkingLib.exponentialBackoff = originalFunc
     })
     test('when tvm response has a server error with 2 maxRetries', async () => {
-      const originalFunc = networkingLib.exponentialBackoff
-      networkingLib.exponentialBackoff = jest.fn().mockResolvedValue(wrapInFetchError(500))
+      mockExponentialBackoff.mockResolvedValue(wrapInFetchError(500))
       fakeTVMInput.cacheFile = false
       const customInput = fakeTVMInput
       customInput.retryOptions = { maxRetries: 2 }
       const tvmClient = await TvmClient.init(customInput)
       await expect(tvmClient.getAzureBlobCredentials.bind(tvmClient)).toThrowStatusError(500)
-      expect(networkingLib.exponentialBackoff).toHaveBeenCalledTimes(1)
-      expect(networkingLib.exponentialBackoff).toHaveBeenCalledWith(
+      expect(mockExponentialBackoff).toHaveBeenCalledTimes(1)
+      expect(mockExponentialBackoff).toHaveBeenCalledWith(
         new URL(TvmClient.DefaultApiHost + '/' + TvmClient.AzureBlobEndpoint + '/' + fakeTVMInput.ow.namespace),
         expect.objectContaining({ headers: { Authorization: fakeAuthBase64Header, 'x-Api-Key': ADOBE_IO_GW_API_KEY } }),
         { maxRetries: 2 }
@@ -386,18 +388,16 @@ describe('getAzureBlobCredentials', () => {
       expect(fs.writeFile).toHaveBeenCalledTimes(0)
       expect(mockLogError).toHaveBeenCalledWith(expect.stringContaining(fakeTVMInput.ow.namespace))
       expect(mockLogError).toHaveBeenCalledWith(expect.not.stringContaining(fakeTVMInput.ow.auth))
-      networkingLib.exponentialBackoff = originalFunc
     })
     test('when tvm response has a server error with 50ms retryMultiplier', async () => {
-      const originalFunc = networkingLib.exponentialBackoff
-      networkingLib.exponentialBackoff = jest.fn().mockResolvedValue(wrapInFetchError(500))
+      mockExponentialBackoff.mockResolvedValue(wrapInFetchError(500))
       fakeTVMInput.cacheFile = false
       const customInput = fakeTVMInput
       customInput.retryOptions = { initialDelayInMillis: 50 }
       const tvmClient = await TvmClient.init(customInput)
       await expect(tvmClient.getAzureBlobCredentials.bind(tvmClient)).toThrowStatusError(500)
-      expect(networkingLib.exponentialBackoff).toHaveBeenCalledTimes(1)
-      expect(networkingLib.exponentialBackoff).toHaveBeenCalledWith(
+      expect(mockExponentialBackoff).toHaveBeenCalledTimes(1)
+      expect(mockExponentialBackoff).toHaveBeenCalledWith(
         new URL(TvmClient.DefaultApiHost + '/' + TvmClient.AzureBlobEndpoint + '/' + fakeTVMInput.ow.namespace),
         expect.objectContaining({ headers: { Authorization: fakeAuthBase64Header, 'x-Api-Key': ADOBE_IO_GW_API_KEY } }),
         { initialDelayInMillis: 50 }
@@ -406,11 +406,10 @@ describe('getAzureBlobCredentials', () => {
       expect(fs.writeFile).toHaveBeenCalledTimes(0)
       expect(mockLogError).toHaveBeenCalledWith(expect.stringContaining(fakeTVMInput.ow.namespace))
       expect(mockLogError).toHaveBeenCalledWith(expect.not.stringContaining(fakeTVMInput.ow.auth))
-      networkingLib.exponentialBackoff = originalFunc
     })
     test('when tvm fetch is unauthorized', async () => {
       // fake the fetch to the TVM
-      fetch.mockResolvedValue(wrapInFetchError(403))
+      mockExponentialBackoff.mockResolvedValue(wrapInFetchError(403))
       fakeTVMInput.cacheFile = false
       const tvmClient = await TvmClient.init(fakeTVMInput)
       await expect(tvmClient.getAzureBlobCredentials.bind(tvmClient)).toThrowStatusError(403)
@@ -422,7 +421,7 @@ describe('getAzureBlobCredentials', () => {
   })
   describe('with caching to file', () => {
     test('when default cache file exists (when cacheFile=undefined)', async () => {
-      fetch.mockResolvedValue(wrapInFetchResponse({ bad: 'response' }))
+      mockExponentialBackoff.mockResolvedValue(wrapInFetchResponse({ bad: 'response' }))
       fs.readFile.mockResolvedValue(Buffer.from(cacheContent))
 
       const tvmClient = await TvmClient.init(fakeTVMInput)
@@ -433,7 +432,7 @@ describe('getAzureBlobCredentials', () => {
       expect(mockLogDebug).toHaveBeenCalledWith(expect.stringContaining(readCacheLog))
     })
     test('when specified cache file exists', async () => {
-      fetch.mockResolvedValue(wrapInFetchResponse({ bad: 'response' }))
+      mockExponentialBackoff.mockResolvedValue(wrapInFetchResponse({ bad: 'response' }))
       fs.readFile.mockResolvedValue(Buffer.from(cacheContent))
       fakeTVMInput.cacheFile = '/cache'
       const tvmClient = await TvmClient.init(fakeTVMInput)
@@ -445,7 +444,7 @@ describe('getAzureBlobCredentials', () => {
     })
 
     test('when cache is empty', async () => {
-      fetch.mockResolvedValue(wrapInFetchResponse(fakeAzureTVMResponse))
+      mockExponentialBackoff.mockResolvedValue(wrapInFetchResponse(fakeAzureTVMResponse))
       fs.readFile.mockRejectedValue(new Error('should be catched'))
 
       fakeTVMInput.cacheFile = '/cache'
@@ -459,7 +458,7 @@ describe('getAzureBlobCredentials', () => {
 
     test('when cache for other key exists', async () => {
       const prevObject = { prevKey: { fake: 'creds' } }
-      fetch.mockResolvedValue(wrapInFetchResponse(fakeAzureTVMResponse))
+      mockExponentialBackoff.mockResolvedValue(wrapInFetchResponse(fakeAzureTVMResponse))
       fs.readFile.mockResolvedValue(Buffer.from(JSON.stringify(prevObject)))
 
       const tvmClient = await TvmClient.init(fakeTVMInput)
@@ -472,7 +471,7 @@ describe('getAzureBlobCredentials', () => {
 
     test('when cache for same key exists but is expired', async () => {
       const prevObject = { fakeCacheKey: { fake: 'creds', expiration: minDate } }
-      fetch.mockResolvedValue(wrapInFetchResponse(fakeAzureTVMResponse))
+      mockExponentialBackoff.mockResolvedValue(wrapInFetchResponse(fakeAzureTVMResponse))
       fs.readFile.mockResolvedValue(Buffer.from(JSON.stringify(prevObject)))
 
       const tvmClient = await TvmClient.init(fakeTVMInput)
@@ -492,13 +491,13 @@ describe('getAwsS3Credentials', () => {
   // the general tests are same, we test just that the method is defined
   test('without caching when tvm response is valid', async () => {
     // fake the fetch to the TVM
-    fetch.mockResolvedValue(wrapInFetchResponse(fakeAwsS3Response))
+    mockExponentialBackoff.mockResolvedValue(wrapInFetchResponse(fakeAwsS3Response))
     fakeTVMInput.cacheFile = false
     const tvmClient = await TvmClient.init(fakeTVMInput)
     const creds = await tvmClient.getAwsS3Credentials()
     expect(creds).toEqual(fakeAwsS3Response)
-    expect(fetch.mock.calls[0][0].toString()).toEqual(TvmClient.DefaultApiHost + '/' + TvmClient.AwsS3Endpoint + '/' + fakeTVMInput.ow.namespace)
-    expect(fetch.mock.calls[0][1].headers).toEqual(expect.objectContaining({ Authorization: fakeAuthBase64Header }))
+    expect(mockExponentialBackoff.mock.calls[0][0].toString()).toEqual(TvmClient.DefaultApiHost + '/' + TvmClient.AwsS3Endpoint + '/' + fakeTVMInput.ow.namespace)
+    expect(mockExponentialBackoff.mock.calls[0][1].headers).toEqual(expect.objectContaining({ Authorization: fakeAuthBase64Header }))
   })
 })
 
@@ -506,13 +505,13 @@ describe('getAzureCosmosCredentials', () => {
   // the general tests are same, we test just that the method is defined
   test('without caching when tvm response is valid', async () => {
     // fake the fetch to the TVM
-    fetch.mockResolvedValue(wrapInFetchResponse(fakeAzureCosmosResponse))
+    mockExponentialBackoff.mockResolvedValue(wrapInFetchResponse(fakeAzureCosmosResponse))
     fakeTVMInput.cacheFile = false
     const tvmClient = await TvmClient.init(fakeTVMInput)
     const creds = await tvmClient.getAzureCosmosCredentials()
     expect(creds).toEqual(fakeAzureCosmosResponse)
-    expect(fetch.mock.calls[0][0].toString()).toEqual(TvmClient.DefaultApiHost + '/' + TvmClient.AzureCosmosEndpoint + '/' + fakeTVMInput.ow.namespace)
-    expect(fetch.mock.calls[0][1].headers).toEqual(expect.objectContaining({ Authorization: fakeAuthBase64Header }))
+    expect(mockExponentialBackoff.mock.calls[0][0].toString()).toEqual(TvmClient.DefaultApiHost + '/' + TvmClient.AzureCosmosEndpoint + '/' + fakeTVMInput.ow.namespace)
+    expect(mockExponentialBackoff.mock.calls[0][1].headers).toEqual(expect.objectContaining({ Authorization: fakeAuthBase64Header }))
   })
 })
 
@@ -525,7 +524,7 @@ describe('with in memory caching', () => {
   // the general tests are same, we test just that the method is defined
   test('with cacheFile set to false', async () => {
     // fake the fetch to the TVM
-    fetch.mockResolvedValue(wrapInFetchResponse(fakeAwsS3Response))
+    mockExponentialBackoff.mockResolvedValue(wrapInFetchResponse(fakeAwsS3Response))
     fakeTVMInput.cacheFile = false
     const tvmClient = await TvmClient.init(fakeTVMInput)
     let creds = await tvmClient.getAwsS3Credentials()
@@ -539,7 +538,7 @@ describe('with in memory caching', () => {
 
   test('when other cachekey exists', async () => {
     // fake the fetch to the TVM
-    fetch.mockResolvedValue(wrapInFetchResponse(fakeAwsS3Response))
+    mockExponentialBackoff.mockResolvedValue(wrapInFetchResponse(fakeAwsS3Response))
     fakeTVMInput.cacheFile = false
     const tvmClient = await TvmClient.init(fakeTVMInput)
 
@@ -551,7 +550,7 @@ describe('with in memory caching', () => {
 
   test('when creds have expired', async () => {
     // fake the fetch to the TVM
-    fetch.mockResolvedValue(wrapInFetchResponse(fakeAwsS3Response))
+    mockExponentialBackoff.mockResolvedValue(wrapInFetchResponse(fakeAwsS3Response))
     fakeTVMInput.cacheFile = false
     const tvmClient = await TvmClient.init(fakeTVMInput)
 
