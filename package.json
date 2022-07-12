@@ -55,7 +55,7 @@
   "dependencies": {
     "@adobe/aio-lib-core-errors": "^3.0.0",
     "@adobe/aio-lib-core-logging": "^1.1.2",
-    "@adobe/aio-lib-core-networking": "^1.0.0",
+    "@adobe/aio-lib-core-networking": "^2.0.0",
     "@adobe/aio-lib-env": "^1.0.0",
     "fs-extra": "^9.0.0",
     "joi": "^17.4.2",
