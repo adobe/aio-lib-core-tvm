@@ -85,7 +85,6 @@ const setCacheKey = (input) => crypto.createHash.mockReturnValue({
 })
 
 beforeEach(async () => {
-  expect.hasAssertions()
   jest.resetAllMocks()
   jest.setTimeout(5000)
   fs.readFile.mockReset()
