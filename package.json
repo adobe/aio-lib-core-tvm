@@ -1,6 +1,6 @@
 {
   "name": "@adobe/aio-lib-core-tvm",
-  "version": "3.0.1",
+  "version": "4.0.0",
   "description": "A JS client to access the Adobe I/O token vending machine",
   "main": "lib/TvmClient.js",
   "scripts": {
@@ -27,7 +27,7 @@
   "author": "Adobe Inc.",
   "license": "Apache-2.0",
   "engines": {
-    "node": "^14.16 || ^16.13 || >=18"
+    "node": ">=18"
   },
   "bugs": {
     "url": "https://github.com/adobe/aio-lib-core-tvm/issues"
@@ -54,10 +54,10 @@
     "typescript": "^4.9.5"
   },
   "dependencies": {
-    "@adobe/aio-lib-core-errors": "^3.1.0",
-    "@adobe/aio-lib-core-logging": "^2.0.0",
-    "@adobe/aio-lib-core-networking": "^4.1.0",
-    "@adobe/aio-lib-env": "^2.0.0",
+    "@adobe/aio-lib-core-errors": "^4",
+    "@adobe/aio-lib-core-logging": "^3",
+    "@adobe/aio-lib-core-networking": "^5",
+    "@adobe/aio-lib-env": "^3",
     "fs-extra": "^11.1.1",
     "joi": "^17.4.2",
     "lodash.clonedeep": "^4.5.0",
