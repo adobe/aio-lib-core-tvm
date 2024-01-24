@@ -61,7 +61,6 @@
     "fs-extra": "^11.1.1",
     "joi": "^17.4.2",
     "lodash.clonedeep": "^4.5.0",
-    "node-fetch": "^2.6.0",
     "upath": "^2.0.1"
   }
 }
