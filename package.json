@@ -34,7 +34,7 @@
   },
   "homepage": "https://github.com/adobe/aio-lib-core-tvm#readme",
   "devDependencies": {
-    "@adobe/eslint-config-aio-lib-config": "^2.0.1",
+    "@adobe/eslint-config-aio-lib-config": "^3.0.0",
     "@azure/cosmos": "^4.0.0",
     "@azure/storage-blob": "^12.0.0",
     "@types/hapi__joi": "^17.1.9",
