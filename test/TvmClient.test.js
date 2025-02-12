@@ -361,7 +361,7 @@ describe('getAzureBlobCredentials', () => {
       await expect(tvmClient.getAzureBlobCredentials.bind(tvmClient)).toThrowStatusError(500)
       expect(mockExponentialBackoff).toHaveBeenCalledTimes(1)
       expect(mockExponentialBackoff).toHaveBeenCalledWith(
-        new URL(TvmClient.DefaultApiHost + '/' + TvmClient.AzureBlobEndpoint + '/' + fakeTVMInput.ow.namespace),
+        TvmClient.DefaultApiHost + '/' + TvmClient.AzureBlobEndpoint + '/' + fakeTVMInput.ow.namespace,
         expect.objectContaining({ headers: { Authorization: fakeAuthBase64Header, 'x-Api-Key': ADOBE_IO_GW_API_KEY } }),
         {}
       )
@@ -379,7 +379,7 @@ describe('getAzureBlobCredentials', () => {
       await expect(tvmClient.getAzureBlobCredentials.bind(tvmClient)).toThrowStatusError(500)
       expect(mockExponentialBackoff).toHaveBeenCalledTimes(1)
       expect(mockExponentialBackoff).toHaveBeenCalledWith(
-        new URL(TvmClient.DefaultApiHost + '/' + TvmClient.AzureBlobEndpoint + '/' + fakeTVMInput.ow.namespace),
+        TvmClient.DefaultApiHost + '/' + TvmClient.AzureBlobEndpoint + '/' + fakeTVMInput.ow.namespace,
         expect.objectContaining({ headers: { Authorization: fakeAuthBase64Header, 'x-Api-Key': ADOBE_IO_GW_API_KEY } }),
         { maxRetries: 2 }
       )
@@ -397,7 +397,7 @@ describe('getAzureBlobCredentials', () => {
       await expect(tvmClient.getAzureBlobCredentials.bind(tvmClient)).toThrowStatusError(500)
       expect(mockExponentialBackoff).toHaveBeenCalledTimes(1)
       expect(mockExponentialBackoff).toHaveBeenCalledWith(
-        new URL(TvmClient.DefaultApiHost + '/' + TvmClient.AzureBlobEndpoint + '/' + fakeTVMInput.ow.namespace),
+        TvmClient.DefaultApiHost + '/' + TvmClient.AzureBlobEndpoint + '/' + fakeTVMInput.ow.namespace,
         expect.objectContaining({ headers: { Authorization: fakeAuthBase64Header, 'x-Api-Key': ADOBE_IO_GW_API_KEY } }),
         { initialDelayInMillis: 50 }
       )
