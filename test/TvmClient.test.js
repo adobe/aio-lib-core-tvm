@@ -230,7 +230,7 @@ describe('getAzurePresignCredentials', () => {
     const creds = await tvmClient.getAzureBlobPresignCredentials(options)
     expect(creds).toEqual(fakeAzureTVMPresignResponse)
     // calls with namespace as path arg
-    expect(mockExponentialBackoff.mock.calls[0][0].toString()).toEqual(TvmClient.DefaultApiHost + '/' +
+    expect(mockExponentialBackoff.mock.calls[0][0]).toEqual(TvmClient.DefaultApiHost + '/' +
       TvmClient.AzurePresignEndpoint + '/' + fakeTVMInput.ow.namespace + '?blobName=fakefile&expiryInSeconds=60&permissions=fake')
     // adds Authorization header
     expect(mockExponentialBackoff.mock.calls[0][1].headers).toEqual({ Authorization: fakeAuthBase64Header, 'x-Api-Key': ADOBE_IO_GW_API_KEY })
@@ -293,7 +293,7 @@ describe('revokePresignURLs', () => {
     const creds = await tvmClient.revokePresignURLs()
     expect(creds).toEqual(fakeAzureTVMPresignResponse)
     // calls with namespace as path arg
-    expect(mockExponentialBackoff.mock.calls[0][0].toString()).toEqual(TvmClient.DefaultApiHost + '/' +
+    expect(mockExponentialBackoff.mock.calls[0][0]).toEqual(TvmClient.DefaultApiHost + '/' +
       TvmClient.AzureRevokePresignEndpoint + '/' + fakeTVMInput.ow.namespace)
     // adds Authorization header
     expect(mockExponentialBackoff.mock.calls[0][1].headers).toEqual(expect.objectContaining({ Authorization: 'Basic ZmFrZWF1dGg=', 'x-Api-Key': 'firefly-aio-tvm' }))
@@ -335,7 +335,7 @@ describe('getAzureBlobCredentials', () => {
       const creds = await tvmClient.getAzureBlobCredentials()
       expect(creds).toEqual(fakeAzureTVMResponse)
       // calls with namespace as path arg
-      expect(mockExponentialBackoff.mock.calls[0][0].toString()).toEqual(TvmClient.DefaultApiHost + '/' + TvmClient.AzureBlobEndpoint + '/' + fakeTVMInput.ow.namespace)
+      expect(mockExponentialBackoff.mock.calls[0][0]).toEqual(TvmClient.DefaultApiHost + '/' + TvmClient.AzureBlobEndpoint + '/' + fakeTVMInput.ow.namespace)
       // adds Authorization header
       expect(mockExponentialBackoff.mock.calls[0][1].headers).toEqual(expect.objectContaining({ Authorization: fakeAuthBase64Header }))
       expect(fs.readFile).toHaveBeenCalledTimes(0)
@@ -495,7 +495,7 @@ describe('getAwsS3Credentials', () => {
     const tvmClient = await TvmClient.init(fakeTVMInput)
     const creds = await tvmClient.getAwsS3Credentials()
     expect(creds).toEqual(fakeAwsS3Response)
-    expect(mockExponentialBackoff.mock.calls[0][0].toString()).toEqual(TvmClient.DefaultApiHost + '/' + TvmClient.AwsS3Endpoint + '/' + fakeTVMInput.ow.namespace)
+    expect(mockExponentialBackoff.mock.calls[0][0]).toEqual(TvmClient.DefaultApiHost + '/' + TvmClient.AwsS3Endpoint + '/' + fakeTVMInput.ow.namespace)
     expect(mockExponentialBackoff.mock.calls[0][1].headers).toEqual(expect.objectContaining({ Authorization: fakeAuthBase64Header }))
   })
 })
@@ -509,7 +509,7 @@ describe('getAzureCosmosCredentials', () => {
     const tvmClient = await TvmClient.init(fakeTVMInput)
     const creds = await tvmClient.getAzureCosmosCredentials()
     expect(creds).toEqual(fakeAzureCosmosResponse)
-    expect(mockExponentialBackoff.mock.calls[0][0].toString()).toEqual(TvmClient.DefaultApiHost + '/' + TvmClient.AzureCosmosEndpoint + '/' + fakeTVMInput.ow.namespace)
+    expect(mockExponentialBackoff.mock.calls[0][0]).toEqual(TvmClient.DefaultApiHost + '/' + TvmClient.AzureCosmosEndpoint + '/' + fakeTVMInput.ow.namespace)
     expect(mockExponentialBackoff.mock.calls[0][1].headers).toEqual(expect.objectContaining({ Authorization: fakeAuthBase64Header }))
   })
 })
